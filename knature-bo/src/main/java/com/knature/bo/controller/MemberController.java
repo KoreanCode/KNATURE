@@ -6,33 +6,25 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@Controller
-@RequestMapping("/admin/members")
+@RestController
+@RequestMapping("/api/members")
 @RequiredArgsConstructor
 public class MemberController {
 
     private final MemberService memberService;
 
     @GetMapping
-    public String list(@RequestParam(required = false) String keyword,
-                       @RequestParam(required = false) MemberGrade grade,
-                       @PageableDefault(size = 20, sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
-                       Model model) {
-        model.addAttribute("members", memberService.getMembers(keyword, grade, pageable));
-        model.addAttribute("keyword", keyword);
-        model.addAttribute("grade", grade);
-        model.addAttribute("grades", MemberGrade.values());
-        return "member/list";
+    public ResponseEntity<?> list(@RequestParam(required = false) String keyword,
+                                  @RequestParam(required = false) MemberGrade grade,
+                                  @PageableDefault(size = 20, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
+        return ResponseEntity.ok(memberService.getMembers(keyword, grade, pageable));
     }
 
     @GetMapping("/{id}")
-    public String detail(@PathVariable Long id, Model model) {
-        model.addAttribute("member", memberService.getMember(id));
-        model.addAttribute("grades", MemberGrade.values());
-        return "member/detail";
+    public ResponseEntity<?> detail(@PathVariable Long id) {
+        return ResponseEntity.ok(memberService.getMember(id));
     }
 }

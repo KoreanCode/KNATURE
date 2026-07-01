@@ -6,50 +6,39 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-@Controller
-@RequestMapping("/admin/orders")
+import java.util.Map;
+
+@RestController
+@RequestMapping("/api/orders")
 @RequiredArgsConstructor
 public class OrderController {
 
     private final OrderService orderService;
 
     @GetMapping
-    public String list(@RequestParam(required = false) String keyword,
-                       @RequestParam(required = false) OrderStatus status,
-                       @PageableDefault(size = 20, sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
-                       Model model) {
-        model.addAttribute("orders", orderService.getOrders(keyword, status, pageable));
-        model.addAttribute("keyword", keyword);
-        model.addAttribute("status", status);
-        model.addAttribute("statuses", OrderStatus.values());
-        return "order/list";
+    public ResponseEntity<?> list(@RequestParam(required = false) String keyword,
+                                  @RequestParam(required = false) OrderStatus status,
+                                  @PageableDefault(size = 20, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
+        return ResponseEntity.ok(orderService.getOrders(keyword, status, pageable));
     }
 
     @GetMapping("/{id}")
-    public String detail(@PathVariable Long id, Model model) {
-        model.addAttribute("order", orderService.getOrder(id));
-        model.addAttribute("statuses", OrderStatus.values());
-        return "order/detail";
+    public ResponseEntity<?> detail(@PathVariable Long id) {
+        return ResponseEntity.ok(orderService.getOrder(id));
     }
 
-    @PostMapping("/{id}/status")
-    public String updateStatus(@PathVariable Long id, @RequestParam OrderStatus status,
-                               RedirectAttributes ra) {
-        orderService.updateStatus(id, status);
-        ra.addFlashAttribute("message", "주문 상태가 변경되었습니다.");
-        return "redirect:/admin/orders/" + id;
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<?> updateStatus(@PathVariable Long id, @RequestBody Map<String, String> body) {
+        orderService.updateStatus(id, OrderStatus.valueOf(body.get("status")));
+        return ResponseEntity.ok(Map.of("message", "주문 상태가 변경되었습니다."));
     }
 
-    @PostMapping("/{id}/memo")
-    public String updateMemo(@PathVariable Long id, @RequestParam String memo,
-                             RedirectAttributes ra) {
-        orderService.updateMemo(id, memo);
-        ra.addFlashAttribute("message", "메모가 저장되었습니다.");
-        return "redirect:/admin/orders/" + id;
+    @PatchMapping("/{id}/memo")
+    public ResponseEntity<?> updateMemo(@PathVariable Long id, @RequestBody Map<String, String> body) {
+        orderService.updateMemo(id, body.get("memo"));
+        return ResponseEntity.ok(Map.of("message", "메모가 저장되었습니다."));
     }
 }

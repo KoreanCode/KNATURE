@@ -2,33 +2,31 @@ package com.knature.bo.controller;
 
 import com.knature.bo.service.DashboardService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-@Controller
-@RequestMapping("/admin")
+import java.util.Map;
+
+@RestController
+@RequestMapping("/api/dashboard")
 @RequiredArgsConstructor
 public class DashboardController {
 
     private final DashboardService dashboardService;
 
-    @GetMapping("/dashboard")
-    public String dashboard(Model model) {
-        model.addAttribute("orderCounts", dashboardService.getOrderStatusCounts());
-        model.addAttribute("csCounts", dashboardService.getCsStatusCounts());
-        model.addAttribute("todaySales", dashboardService.getTodaySales());
-        model.addAttribute("todayOrders", dashboardService.getTodayOrderCount());
-        model.addAttribute("weeklySales", dashboardService.getWeeklySales());
-        model.addAttribute("totalMembers", dashboardService.getTotalMembers());
-        model.addAttribute("newMembers", dashboardService.getTodayNewMembers());
-        model.addAttribute("totalProducts", dashboardService.getTotalProducts());
-        return "dashboard/index";
-    }
-
-    @GetMapping("/login")
-    public String login() {
-        return "login";
+    @GetMapping
+    public ResponseEntity<?> dashboard() {
+        return ResponseEntity.ok(Map.of(
+                "orderCounts", dashboardService.getOrderStatusCounts(),
+                "csCounts", dashboardService.getCsStatusCounts(),
+                "todaySales", dashboardService.getTodaySales(),
+                "todayOrders", dashboardService.getTodayOrderCount(),
+                "weeklySales", dashboardService.getWeeklySales(),
+                "totalMembers", dashboardService.getTotalMembers(),
+                "newMembers", dashboardService.getTodayNewMembers(),
+                "totalProducts", dashboardService.getTotalProducts()
+        ));
     }
 }

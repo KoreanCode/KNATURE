@@ -6,10 +6,10 @@ spring:
     name: knature-bo
   profiles:
     active: dev
-  thymeleaf:
-    prefix: classpath:/templates/
-    suffix: .html
-    cache: false
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+    time-zone: Asia/Seoul
 
 logging:
   level:

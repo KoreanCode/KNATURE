@@ -1,5 +1,6 @@
 package com.knature.common.domain.order;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.knature.common.domain.BaseEntity;
 import com.knature.common.domain.member.Member;
 import jakarta.persistence.*;
@@ -73,6 +74,7 @@ public class Order extends BaseEntity {
     private String adminMemo;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnoreProperties({"order", "hibernateLazyInitializer"})
     private List<OrderItem> items = new ArrayList<>();
 
     @Builder

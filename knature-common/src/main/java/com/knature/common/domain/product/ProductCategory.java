@@ -1,5 +1,6 @@
 package com.knature.common.domain.product;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.knature.common.domain.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -25,9 +26,11 @@ public class ProductCategory extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_id")
+    @JsonIgnoreProperties({"children", "parent", "hibernateLazyInitializer"})
     private ProductCategory parent;
 
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL)
+    @JsonIgnoreProperties({"parent", "children", "hibernateLazyInitializer"})
     private List<ProductCategory> children = new ArrayList<>();
 
     @Column(nullable = false)
