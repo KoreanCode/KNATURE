@@ -1,0 +1,5 @@
+rootProject.name = 'knature'
+
+include 'knature-common'
+include 'knature-fo'
+include 'knature-bo'
