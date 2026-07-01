@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head th:replace="~{fragments/layout :: head('상품 상세')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: sidebar}"></nav>
+<div class="main-content">
+    <div th:replace="~{fragments/layout :: topbar}" th:with="pageTitle='상품 상세'"></div>
+
+    <div class="content-card">
+        <div class="d-flex justify-content-between mb-3">
+            <h5 th:text="${product.name}">상품명</h5>
+            <div class="d-flex gap-2">
+                <a th:href="@{/admin/products/{id}/edit(id=${product.id})}" class="btn btn-sm btn-outline-primary">수정</a>
+                <form th:action="@{/admin/products/{id}/delete(id=${product.id})}" method="post" onsubmit="return confirm('정말 삭제하시겠습니까?')">
+                    <button class="btn btn-sm btn-outline-danger">삭제</button>
+                </form>
+            </div>
+        </div>
+
+        <table class="table">
+            <tr><th style="width:150px">ID</th><td th:text="${product.id}"></td></tr>
+            <tr><th>상품코드</th><td th:text="${product.code ?: '-'}"></td></tr>
+            <tr><th>카테고리</th><td th:text="${product.category?.name ?: '-'}"></td></tr>
+            <tr><th>판매가</th><td th:text="${#numbers.formatInteger(product.price, 0, 'COMMA')} + '원'"></td></tr>
+            <tr><th>할인가</th><td th:text="${product.salePrice != null ? #numbers.formatInteger(product.salePrice, 0, 'COMMA') + '원' : '-'}"></td></tr>
+            <tr><th>할인율</th><td th:text="${product.discountRate} + '%'"></td></tr>
+            <tr>
+                <th>상태</th>
+                <td>
+                    <span class="badge" th:text="${product.status.label}"
+                          th:classappend="${product.status.name() == 'ON_SALE' ? 'bg-success' : (product.status.name() == 'SOLD_OUT' ? 'bg-danger' : 'bg-secondary')}"></span>
+                </td>
+            </tr>
+            <tr><th>설명</th><td th:text="${product.description ?: '-'}"></td></tr>
+            <tr><th>등록일</th><td th:text="${#temporals.format(product.createdAt, 'yyyy-MM-dd HH:mm')}"></td></tr>
+        </table>
+
+        <a href="/admin/products" class="btn btn-outline-secondary btn-sm">목록으로</a>
+    </div>
+</div>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+</html>

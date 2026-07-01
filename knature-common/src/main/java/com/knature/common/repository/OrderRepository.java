@@ -1,0 +1,30 @@
+package com.knature.common.repository;
+
+import com.knature.common.domain.order.Order;
+import com.knature.common.domain.order.OrderStatus;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+
+public interface OrderRepository extends JpaRepository<Order, Long> {
+    Optional<Order> findByOrderNumber(String orderNumber);
+
+    Page<Order> findByStatus(OrderStatus status, Pageable pageable);
+
+    Page<Order> findByOrderNumberContainingOrOrdererNameContaining(String orderNumber, String ordererName, Pageable pageable);
+
+    long countByStatus(OrderStatus status);
+
+    @Query("SELECT COALESCE(SUM(o.paymentAmount), 0) FROM Order o WHERE o.createdAt >= :from AND o.createdAt < :to AND o.status NOT IN ('CANCELLED', 'REFUND_COMPLETED')")
+    long sumPaymentAmountBetween(LocalDateTime from, LocalDateTime to);
+
+    @Query("SELECT COUNT(o) FROM Order o WHERE o.createdAt >= :from AND o.createdAt < :to")
+    long countOrdersBetween(LocalDateTime from, LocalDateTime to);
+
+    List<Order> findByStatusAndCreatedAtBefore(OrderStatus status, LocalDateTime dateTime);
+}

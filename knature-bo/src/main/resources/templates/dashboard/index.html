@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head th:replace="~{fragments/layout :: head('대시보드')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: sidebar}"></nav>
+<div class="main-content">
+    <div th:replace="~{fragments/layout :: topbar}" th:with="pageTitle='대시보드'"></div>
+
+    <!-- 오늘의 할 일 -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="label">오늘 매출</div>
+                <div class="number text-primary" th:text="${#numbers.formatInteger(todaySales, 0, 'COMMA')} + '원'">0원</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="label">오늘 주문</div>
+                <div class="number" th:text="${todayOrders} + '건'">0건</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="label">전체 회원</div>
+                <div class="number" th:text="${totalMembers} + '명'">0명</div>
+                <small class="text-success" th:text="'오늘 +' + ${newMembers}">오늘 +0</small>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="label">전체 상품</div>
+                <div class="number" th:text="${totalProducts} + '개'">0개</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <!-- 주문 현황 -->
+        <div class="col-md-6">
+            <div class="content-card">
+                <h6 class="mb-3"><i class="bi bi-exclamation-circle text-warning"></i> 오늘의 할 일 - 주문</h6>
+                <table class="table table-sm mb-0">
+                    <tr th:each="entry : ${orderCounts}">
+                        <td th:text="${entry.key}">상태</td>
+                        <td class="text-end">
+                            <span class="badge bg-primary" th:text="${entry.value} + '건'" th:classappend="${entry.value > 0 ? 'bg-danger' : 'bg-secondary'}">0건</span>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <!-- CS 현황 -->
+        <div class="col-md-6">
+            <div class="content-card">
+                <h6 class="mb-3"><i class="bi bi-headset text-info"></i> 오늘의 할 일 - CS</h6>
+                <table class="table table-sm mb-0">
+                    <tr th:each="entry : ${csCounts}">
+                        <td th:text="${entry.key}">상태</td>
+                        <td class="text-end">
+                            <span class="badge" th:text="${entry.value} + '건'" th:classappend="${entry.value > 0 ? 'bg-warning' : 'bg-secondary'}">0건</span>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- 주간 매출 -->
+    <div class="content-card">
+        <h6 class="mb-3"><i class="bi bi-graph-up text-success"></i> 최근 7일 매출</h6>
+        <table class="table table-sm">
+            <thead><tr><th>날짜</th><th class="text-end">매출</th></tr></thead>
+            <tbody>
+                <tr th:each="entry : ${weeklySales}">
+                    <td th:text="${entry.key}">날짜</td>
+                    <td class="text-end" th:text="${#numbers.formatInteger(entry.value, 0, 'COMMA')} + '원'">0원</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+</html>
