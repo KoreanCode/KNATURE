@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -21,10 +22,10 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     long countByStatus(OrderStatus status);
 
     @Query("SELECT COALESCE(SUM(o.paymentAmount), 0) FROM Order o WHERE o.createdAt >= :from AND o.createdAt < :to AND o.status NOT IN ('CANCELLED', 'REFUND_COMPLETED')")
-    long sumPaymentAmountBetween(LocalDateTime from, LocalDateTime to);
+    long sumPaymentAmountBetween(@Param("from") LocalDateTime from, @Param("to") LocalDateTime to);
 
     @Query("SELECT COUNT(o) FROM Order o WHERE o.createdAt >= :from AND o.createdAt < :to")
-    long countOrdersBetween(LocalDateTime from, LocalDateTime to);
+    long countOrdersBetween(@Param("from") LocalDateTime from, @Param("to") LocalDateTime to);
 
     List<Order> findByStatusAndCreatedAtBefore(OrderStatus status, LocalDateTime dateTime);
 }

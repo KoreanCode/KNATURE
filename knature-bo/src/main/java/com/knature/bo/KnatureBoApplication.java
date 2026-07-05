@@ -5,7 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = {"com.knature.bo", "com.knature.common"})
 @EntityScan(basePackages = {"com.knature.common", "com.knature.bo"})
 @EnableJpaRepositories(basePackages = {"com.knature.common", "com.knature.bo"})
 public class KnatureBoApplication {
