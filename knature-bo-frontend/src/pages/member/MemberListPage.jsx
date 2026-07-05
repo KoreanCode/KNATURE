@@ -39,12 +39,12 @@ export default function MemberListPage() {
 
         <table className="table table-hover">
           <thead className="table-light">
-            <tr><th style={{ width: 60 }}>ID</th><th>아이디</th><th>이름</th><th>이메일</th><th className="text-center">등급</th><th className="text-end">총 구매금액</th><th className="text-center">가입일</th></tr>
+            <tr><th style={{ width: 60 }}>번호</th><th>아이디</th><th>이름</th><th>이메일</th><th className="text-center">등급</th><th className="text-end">총 구매금액</th><th className="text-center">가입일</th></tr>
           </thead>
           <tbody>
-            {members.content.map((m) => (
+            {members.content.map((m, i) => (
               <tr key={m.id} style={{ cursor: 'pointer' }} onClick={() => navigate(`/members/${m.id}`)}>
-                <td>{m.id}</td><td>{m.username}</td><td>{m.name}</td><td>{m.email}</td>
+                <td>{members.number * 20 + i + 1}</td><td>{m.username}</td><td>{m.name}</td><td>{m.email}</td>
                 <td className="text-center"><span className="badge bg-primary">{GRADE_LABELS[m.grade]}</span></td>
                 <td className="text-end">{fmt(m.totalPurchaseAmount)}원</td>
                 <td className="text-center">{m.createdAt?.slice(0, 10)}</td>
@@ -53,6 +53,18 @@ export default function MemberListPage() {
             {members.totalElements === 0 && <tr><td colSpan={7} className="text-center text-muted py-4">등록된 회원이 없습니다.</td></tr>}
           </tbody>
         </table>
+
+        {members.totalPages > 1 && (
+          <nav>
+            <ul className="pagination pagination-sm justify-content-center">
+              {[...Array(members.totalPages)].map((_, i) => (
+                <li key={i} className={`page-item ${i === members.number ? 'active' : ''}`}>
+                  <button className="page-link" onClick={() => setSearchParams({ keyword, grade, page: i })}>{i + 1}</button>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        )}
       </div>
     </>
   );

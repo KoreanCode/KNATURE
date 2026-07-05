@@ -1,5 +1,6 @@
 package com.knature.common.domain.order;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.knature.common.domain.BaseEntity;
 import com.knature.common.domain.product.Product;
 import com.knature.common.domain.product.ProductOption;
@@ -22,10 +23,12 @@ public class OrderItem extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id")
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private Product product;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_option_id")
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private ProductOption productOption;
 
     @Column(nullable = false, length = 200)

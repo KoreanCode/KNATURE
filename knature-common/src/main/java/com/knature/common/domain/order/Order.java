@@ -24,6 +24,7 @@ public class Order extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private Member member;
 
     @Column(nullable = false, length = 50)

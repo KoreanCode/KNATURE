@@ -40,12 +40,12 @@ export default function OrderListPage() {
 
         <table className="table table-hover">
           <thead className="table-light">
-            <tr><th style={{ width: 60 }}>ID</th><th>주문번호</th><th>주문자</th><th className="text-end">결제금액</th><th className="text-center">결제수단</th><th className="text-center">상태</th><th className="text-center">주문일</th></tr>
+            <tr><th style={{ width: 60 }}>번호</th><th>주문번호</th><th>주문자</th><th className="text-end">결제금액</th><th className="text-center">결제수단</th><th className="text-center">상태</th><th className="text-center">주문일</th></tr>
           </thead>
           <tbody>
-            {orders.content.map((o) => (
+            {orders.content.map((o, i) => (
               <tr key={o.id} style={{ cursor: 'pointer' }} onClick={() => navigate(`/orders/${o.id}`)}>
-                <td>{o.id}</td><td>{o.orderNumber}</td><td>{o.ordererName}</td>
+                <td>{orders.number * 20 + i + 1}</td><td>{o.orderNumber}</td><td>{o.ordererName}</td>
                 <td className="text-end">{fmt(o.paymentAmount)}원</td>
                 <td className="text-center">{PAY_LABELS[o.paymentMethod]}</td>
                 <td className="text-center"><span className="badge bg-info">{STATUS_LABELS[o.status]}</span></td>
@@ -55,6 +55,18 @@ export default function OrderListPage() {
             {orders.totalElements === 0 && <tr><td colSpan={7} className="text-center text-muted py-4">주문 내역이 없습니다.</td></tr>}
           </tbody>
         </table>
+
+        {orders.totalPages > 1 && (
+          <nav>
+            <ul className="pagination pagination-sm justify-content-center">
+              {[...Array(orders.totalPages)].map((_, i) => (
+                <li key={i} className={`page-item ${i === orders.number ? 'active' : ''}`}>
+                  <button className="page-link" onClick={() => setSearchParams({ keyword, status, page: i })}>{i + 1}</button>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        )}
       </div>
     </>
   );

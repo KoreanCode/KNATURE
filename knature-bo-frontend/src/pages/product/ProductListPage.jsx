@@ -48,7 +48,7 @@ export default function ProductListPage() {
         <table className="table table-hover">
           <thead className="table-light">
             <tr>
-              <th style={{ width: 60 }}>ID</th>
+              <th style={{ width: 60 }}>번호</th>
               <th>상품명</th>
               <th>카테고리</th>
               <th className="text-end">판매가</th>
@@ -58,9 +58,9 @@ export default function ProductListPage() {
             </tr>
           </thead>
           <tbody>
-            {products.content.map((p) => (
+            {products.content.map((p, i) => (
               <tr key={p.id} style={{ cursor: 'pointer' }} onClick={() => navigate(`/products/${p.id}`)}>
-                <td>{p.id}</td>
+                <td>{products.number * 20 + i + 1}</td>
                 <td>{p.name}</td>
                 <td>{p.category?.name || '-'}</td>
                 <td className="text-end">{fmt(p.price)}원</td>
