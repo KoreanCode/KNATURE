@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import api from '../../api/client';
 import TopBar from '../../components/TopBar';
 import Pagination from '../../components/Pagination';
+import { downloadFile } from '../../utils/download';
 
 const STATUS_LABELS = { PENDING_PAYMENT: '입금전', PREPARING: '배송준비중', SHIPPING: '배송중', DELIVERED: '배송완료', CANCEL_REQUESTED: '취소요청', CANCELLED: '취소완료', EXCHANGE_REQUESTED: '교환요청', RETURN_REQUESTED: '반품요청', REFUND_COMPLETED: '환불완료' };
 const PAY_LABELS = { CREDIT_CARD: '신용카드', BANK_TRANSFER: '무통장입금', KAKAO_PAY: '카카오페이', NAVER_PAY: '네이버페이' };
@@ -45,23 +46,9 @@ export default function OrderListPage() {
   const handleSearch = (e) => { e.preventDefault(); setParams({}); };
   const fmt = (n) => Number(n).toLocaleString();
 
-  const downloadExcel = () => {
-    api.get('/orders/excel', { params: filterParams(), responseType: 'blob' }).then((res) => {
-      const url = URL.createObjectURL(res.data);
-      const a = document.createElement('a');
-      a.href = url; a.download = '주문목록.csv'; a.click();
-      URL.revokeObjectURL(url);
-    });
-  };
+  const downloadExcel = () => downloadFile('/orders/excel', '주문목록.csv', filterParams());
 
-  const downloadTemplate = () => {
-    api.get('/orders/shipping-template', { responseType: 'blob' }).then((res) => {
-      const url = URL.createObjectURL(res.data);
-      const a = document.createElement('a');
-      a.href = url; a.download = '송장일괄등록_템플릿.csv'; a.click();
-      URL.revokeObjectURL(url);
-    });
-  };
+  const downloadTemplate = () => downloadFile('/orders/shipping-template', '송장일괄등록_템플릿.csv');
 
   const uploadBulk = () => {
     if (!bulkFile) { alert('CSV 파일을 선택해주세요.'); return; }

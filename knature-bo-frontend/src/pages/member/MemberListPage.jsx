@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import api from '../../api/client';
 import TopBar from '../../components/TopBar';
 import Pagination from '../../components/Pagination';
+import { downloadFile } from '../../utils/download';
 
 const GRADE_LABELS = { NEW: '뉴', RUBY: '루비', SILVER: '실버', GOLD: '골드', DIAMOND: '다이아몬드', PLATINUM: '플래티넘' };
 
@@ -42,12 +43,7 @@ export default function MemberListPage() {
             const params = {};
             if (keyword) params.keyword = keyword;
             if (grade) params.grade = grade;
-            api.get('/members/excel', { params, responseType: 'blob' }).then((res) => {
-              const url = URL.createObjectURL(res.data);
-              const a = document.createElement('a');
-              a.href = url; a.download = '회원목록.csv'; a.click();
-              URL.revokeObjectURL(url);
-            });
+            downloadFile('/members/excel', '회원목록.csv', params);
           }}><i className="bi bi-file-earmark-excel"></i> 엑셀 다운로드</button>
         </div>
 
