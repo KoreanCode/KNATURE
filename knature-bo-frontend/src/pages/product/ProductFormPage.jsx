@@ -9,7 +9,7 @@ export default function ProductFormPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [categories, setCategories] = useState([]);
-  const [form, setForm] = useState({ name: '', code: '', price: 0, salePrice: '', description: '', detailContent: '', status: 'ON_SALE', displayed: true, categoryId: '' });
+  const [form, setForm] = useState({ name: '', code: '', price: 0, salePrice: '', description: '', detailContent: '', status: 'ON_SALE', displayed: true, categoryId: '', stockQuantity: 0 });
   const [images, setImages] = useState([]);   // [{imageUrl, isMain, sortOrder}]
   const [options, setOptions] = useState([]); // [{name, additionalPrice, stockQuantity, sortOrder}]
   const [uploading, setUploading] = useState(false);
@@ -19,7 +19,7 @@ export default function ProductFormPage() {
     if (id) {
       api.get(`/products/${id}`).then((res) => {
         const p = res.data;
-        setForm({ name: p.name, code: p.code || '', price: p.price, salePrice: p.salePrice || '', description: p.description || '', detailContent: p.detailContent || '', status: p.status, displayed: p.displayed ?? true, categoryId: p.category?.id || '' });
+        setForm({ name: p.name, code: p.code || '', price: p.price, salePrice: p.salePrice || '', description: p.description || '', detailContent: p.detailContent || '', status: p.status, displayed: p.displayed ?? true, categoryId: p.category?.id || '', stockQuantity: p.stockQuantity ?? 0 });
         setImages((p.images || []).map((img) => ({ imageUrl: img.imageUrl, isMain: img.isMain, sortOrder: img.sortOrder })));
         setOptions((p.options || []).map((o) => ({ name: o.name, additionalPrice: o.additionalPrice, stockQuantity: o.stockQuantity, sortOrder: o.sortOrder })));
       });
@@ -167,6 +167,11 @@ export default function ProductFormPage() {
                 <option value="Y">진열함</option>
                 <option value="N">진열 안 함</option>
               </select>
+            </div>
+            <div className="col-md-4">
+              <label className="form-label fw-bold">상품 재고</label>
+              <input type="text" className="form-control" value={`${Number(form.stockQuantity).toLocaleString()}개`} disabled readOnly />
+              <small className="text-muted">재고는 [재고 관리]에서 사유와 함께 조정합니다. 재고 0 = 자동 품절</small>
             </div>
           </div>
           <div className="d-flex gap-2">

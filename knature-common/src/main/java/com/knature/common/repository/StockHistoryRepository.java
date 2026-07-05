@@ -7,4 +7,6 @@ import java.util.List;
 
 public interface StockHistoryRepository extends JpaRepository<StockHistory, Long> {
     List<StockHistory> findByProductIdOrderByIdDesc(Long productId);
+
+    void deleteByProductId(Long productId);
 }

@@ -1,7 +1,6 @@
 package com.knature.bo.service;
 
 import com.knature.common.domain.product.Product;
-import com.knature.common.domain.product.ProductStatus;
 import com.knature.common.domain.stock.StockHistory;
 import com.knature.common.repository.ProductRepository;
 import com.knature.common.repository.StockHistoryRepository;
@@ -45,13 +44,7 @@ public class StockService {
 
         int before = product.getStockQuantity() == null ? 0 : product.getStockQuantity();
         product.setStockQuantity(quantity);
-
-        // 품절 자동 처리
-        if (quantity == 0 && product.getStatus() == ProductStatus.ON_SALE) {
-            product.setStatus(ProductStatus.SOLD_OUT);
-        } else if (quantity > 0 && product.getStatus() == ProductStatus.SOLD_OUT) {
-            product.setStatus(ProductStatus.ON_SALE);
-        }
+        product.applyStockStatusRule(); // 품절 자동 처리/해제 (엔티티 공통 규칙)
 
         return stockHistoryRepository.save(StockHistory.builder()
                 .product(product)

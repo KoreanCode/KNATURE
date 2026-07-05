@@ -1,8 +1,10 @@
 package com.knature.bo.service;
 
 import com.knature.common.domain.product.*;
+import com.knature.common.repository.OrderItemRepository;
 import com.knature.common.repository.ProductCategoryRepository;
 import com.knature.common.repository.ProductRepository;
+import com.knature.common.repository.StockHistoryRepository;
 import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -21,6 +23,8 @@ public class ProductService {
 
     private final ProductRepository productRepository;
     private final ProductCategoryRepository categoryRepository;
+    private final StockHistoryRepository stockHistoryRepository;
+    private final OrderItemRepository orderItemRepository;
 
     public Page<Product> getProducts(String keyword, ProductStatus status, Long categoryId, Pageable pageable) {
         Specification<Product> spec = (root, query, cb) -> {
@@ -79,8 +83,10 @@ public class ProductService {
                     opt.setId(null); opt.setProduct(existing); existing.getOptions().add(opt);
                 });
             }
+            existing.applyStockStatusRule();
             return existing;
         }
+        product.applyStockStatusRule();
         return productRepository.save(product);
     }
 
@@ -88,18 +94,24 @@ public class ProductService {
     public void updateStatus(Long id, ProductStatus status) {
         Product product = getProduct(id);
         product.setStatus(status);
+        product.applyStockStatusRule(); // 재고 0 상품을 판매중으로 바꾸면 품절로 강제
     }
 
     /** 선택 상품 판매상태 일괄 변경 (FO SOLD 배지 연동) */
     @Transactional
     public int updateStatusBulk(List<Long> ids, ProductStatus status) {
         List<Product> products = productRepository.findAllById(ids);
-        products.forEach(p -> p.setStatus(status));
+        products.forEach(p -> { p.setStatus(status); p.applyStockStatusRule(); });
         return products.size();
     }
 
     @Transactional
     public void deleteProduct(Long id) {
+        long ordered = orderItemRepository.countByProductId(id);
+        if (ordered > 0) {
+            throw new IllegalArgumentException("주문 이력이 있는 상품은 삭제할 수 없습니다. 대신 '숨김' 처리를 사용해주세요.");
+        }
+        stockHistoryRepository.deleteByProductId(id); // 재고 조정 이력 정리 후 삭제
         productRepository.deleteById(id);
     }
 

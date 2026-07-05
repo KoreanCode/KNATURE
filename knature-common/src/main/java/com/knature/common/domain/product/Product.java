@@ -81,4 +81,20 @@ public class Product extends BaseEntity {
         if (salePrice == null || salePrice <= 0 || price <= 0) return 0;
         return (int) ((price - salePrice) * 100 / price);
     }
+
+    /**
+     * 재고-판매상태 자동 규칙 (FO SOLD 배지 연동)
+     * - 재고 0 → 판매중이면 품절 처리
+     * - 재고 확보 → 품절이면 판매중 복원
+     * - 숨김(HIDDEN)은 관리자 의도이므로 유지
+     * 상품 저장/상태변경/재고조정 등 모든 변경 경로에서 호출한다.
+     */
+    public void applyStockStatusRule() {
+        int qty = stockQuantity == null ? 0 : stockQuantity;
+        if (qty == 0 && status == ProductStatus.ON_SALE) {
+            status = ProductStatus.SOLD_OUT;
+        } else if (qty > 0 && status == ProductStatus.SOLD_OUT) {
+            status = ProductStatus.ON_SALE;
+        }
+    }
 }
