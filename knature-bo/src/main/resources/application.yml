@@ -10,6 +10,9 @@ server:
 spring:
   application:
     name: knature-bo
+  # DB 계정 등 비밀 정보는 git 제외된 application-secret.yml 로 관리 (없으면 무시 → 운영은 환경변수 사용 가능)
+  config:
+    import: optional:classpath:application-secret.yml
   profiles:
     active: dev
   jackson:
