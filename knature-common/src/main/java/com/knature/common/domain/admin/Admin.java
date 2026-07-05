@@ -1,5 +1,6 @@
 package com.knature.common.domain.admin;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.knature.common.domain.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -17,6 +18,7 @@ public class Admin extends BaseEntity {
     @Column(nullable = false, unique = true, length = 50)
     private String username;
 
+    @JsonIgnore
     @Column(nullable = false)
     private String password;
 
