@@ -46,7 +46,7 @@ export default function OrderListPage() {
   const handleSearch = (e) => { e.preventDefault(); setParams({}); };
   const fmt = (n) => Number(n).toLocaleString();
 
-  const downloadExcel = () => downloadFile('/orders/excel', '주문목록.csv', filterParams());
+  const downloadExcel = () => downloadFile('/orders/excel', '주문목록.xlsx', filterParams());
 
   const downloadTemplate = () => downloadFile('/orders/shipping-template', '송장일괄등록_템플릿.csv');
 

@@ -2,6 +2,7 @@ package com.knature.bo.controller;
 
 import com.knature.bo.service.OrderService;
 import com.knature.bo.util.CsvUtil;
+import com.knature.bo.util.ExcelUtil;
 import com.knature.common.domain.order.Order;
 import com.knature.common.domain.order.OrderStatus;
 import lombok.RequiredArgsConstructor;
@@ -40,28 +41,28 @@ public class OrderController {
         return ResponseEntity.ok(orderService.getOrders(keyword, status, from, to, pageable));
     }
 
-    /** 주문 목록 엑셀 다운로드 (조회 필터 동일 적용, Excel 호환 CSV) */
+    /** 주문 목록 엑셀(.xlsx) 다운로드 — 셀 타입 지정(송장번호=텍스트, 금액=숫자, 일시=날짜) */
     @GetMapping("/excel")
     public ResponseEntity<byte[]> excel(@RequestParam(required = false) String keyword,
                                         @RequestParam(required = false) OrderStatus status,
                                         @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
-                                        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
-        List<String[]> rows = new ArrayList<>();
-        rows.add(new String[]{"주문번호", "주문자", "연락처", "결제금액", "결제수단", "상태", "택배사", "송장번호", "주문일시"});
+                                        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) throws IOException {
+        String[] headers = {"주문번호", "주문자", "연락처", "결제금액", "결제수단", "상태", "택배사", "송장번호", "주문일시"};
+        List<Object[]> rows = new ArrayList<>();
         for (Order o : orderService.getOrdersForExcel(keyword, status, from, to)) {
-            rows.add(new String[]{
+            rows.add(new Object[]{
                     o.getOrderNumber(),
                     o.getOrdererName(),
                     o.getOrdererPhone(),
-                    String.valueOf(o.getPaymentAmount()),
+                    o.getPaymentAmount(),          // 숫자 셀 (#,##0)
                     o.getPaymentMethod().getLabel(),
                     o.getStatus().getLabel(),
                     o.getCourierCompany(),
-                    o.getTrackingNumber(),
-                    o.getCreatedAt() != null ? o.getCreatedAt().toString().replace('T', ' ') : ""
+                    o.getTrackingNumber(),          // 텍스트 셀 (지수표기 방지)
+                    o.getCreatedAt()                // 날짜 셀 (yyyy-mm-dd hh:mm)
             });
         }
-        return CsvUtil.download("주문목록.csv", rows);
+        return ExcelUtil.download("주문목록.xlsx", "주문목록", headers, rows);
     }
 
     @GetMapping("/{id}")

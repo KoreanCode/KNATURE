@@ -43,7 +43,7 @@ export default function MemberListPage() {
             const params = {};
             if (keyword) params.keyword = keyword;
             if (grade) params.grade = grade;
-            downloadFile('/members/excel', '회원목록.csv', params);
+            downloadFile('/members/excel', '회원목록.xlsx', params);
           }}><i className="bi bi-file-earmark-excel"></i> 엑셀 다운로드</button>
         </div>
 

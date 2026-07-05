@@ -1,7 +1,7 @@
 package com.knature.bo.controller;
 
 import com.knature.bo.service.MemberService;
-import com.knature.bo.util.CsvUtil;
+import com.knature.bo.util.ExcelUtil;
 import com.knature.common.domain.member.Member;
 import com.knature.common.domain.member.MemberGrade;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +11,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -29,25 +30,25 @@ public class MemberController {
         return ResponseEntity.ok(memberService.getMembers(keyword, grade, pageable));
     }
 
-    /** 회원 목록 엑셀 다운로드 (조회 필터 동일 적용, Excel 호환 CSV) */
+    /** 회원 목록 엑셀(.xlsx) 다운로드 — 셀 타입 지정(연락처=텍스트, 금액=숫자, 가입일=날짜) */
     @GetMapping("/excel")
     public ResponseEntity<byte[]> excel(@RequestParam(required = false) String keyword,
-                                        @RequestParam(required = false) MemberGrade grade) {
-        List<String[]> rows = new ArrayList<>();
-        rows.add(new String[]{"아이디", "이름", "이메일", "연락처", "등급", "총구매금액", "활성", "가입일"});
+                                        @RequestParam(required = false) MemberGrade grade) throws IOException {
+        String[] headers = {"아이디", "이름", "이메일", "연락처", "등급", "총구매금액", "활성", "가입일"};
+        List<Object[]> rows = new ArrayList<>();
         for (Member m : memberService.getMembersForExcel(keyword, grade)) {
-            rows.add(new String[]{
+            rows.add(new Object[]{
                     m.getUsername(),
                     m.getName(),
                     m.getEmail(),
                     m.getPhone(),
                     m.getGrade().getLabel(),
-                    String.valueOf(m.getTotalPurchaseAmount()),
+                    m.getTotalPurchaseAmount(),   // 숫자 셀 (#,##0)
                     Boolean.TRUE.equals(m.getActive()) ? "활성" : "비활성",
-                    m.getCreatedAt() != null ? m.getCreatedAt().toLocalDate().toString() : ""
+                    m.getCreatedAt()              // 날짜 셀
             });
         }
-        return CsvUtil.download("회원목록.csv", rows);
+        return ExcelUtil.download("회원목록.xlsx", "회원목록", headers, rows);
     }
 
     @GetMapping("/{id}")
