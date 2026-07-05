@@ -21,6 +21,7 @@ public class DashboardController {
         return ResponseEntity.ok(Map.of(
                 "orderCounts", dashboardService.getOrderStatusCounts(),
                 "csCounts", dashboardService.getCsStatusCounts(),
+                "todayProcessed", dashboardService.getTodayProcessedCounts(),
                 "todaySales", dashboardService.getTodaySales(),
                 "todayOrders", dashboardService.getTodayOrderCount(),
                 "weeklySales", dashboardService.getWeeklySales(),

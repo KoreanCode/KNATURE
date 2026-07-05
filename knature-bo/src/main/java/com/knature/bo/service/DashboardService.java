@@ -3,6 +3,7 @@ package com.knature.bo.service;
 import com.knature.common.domain.order.OrderStatus;
 import com.knature.common.repository.MemberRepository;
 import com.knature.common.repository.OrderRepository;
+import com.knature.common.repository.OrderStatusHistoryRepository;
 import com.knature.common.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,19 @@ public class DashboardService {
     private final OrderRepository orderRepository;
     private final MemberRepository memberRepository;
     private final ProductRepository productRepository;
+    private final OrderStatusHistoryRepository statusHistoryRepository;
+
+    /** 오늘 처리한 일 — 상태변경 이력 기반 (입금확인/배송처리/취소/환불 완료 건수) */
+    public Map<String, Long> getTodayProcessedCounts() {
+        LocalDateTime start = LocalDate.now().atStartOfDay();
+        LocalDateTime end = start.plusDays(1);
+        Map<String, Long> counts = new LinkedHashMap<>();
+        counts.put("입금확인", statusHistoryRepository.countByToStatusBetween(OrderStatus.PREPARING, start, end));
+        counts.put("배송처리", statusHistoryRepository.countByToStatusBetween(OrderStatus.SHIPPING, start, end));
+        counts.put("취소완료", statusHistoryRepository.countByToStatusBetween(OrderStatus.CANCELLED, start, end));
+        counts.put("환불완료", statusHistoryRepository.countByToStatusBetween(OrderStatus.REFUND_COMPLETED, start, end));
+        return counts;
+    }
 
     public Map<String, Long> getOrderStatusCounts() {
         Map<String, Long> counts = new LinkedHashMap<>();

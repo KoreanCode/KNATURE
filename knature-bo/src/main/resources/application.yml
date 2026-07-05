@@ -7,6 +7,9 @@ server:
         same-site: lax
         # 운영(HTTPS) 배포 시 secure: true 로 설정할 것
 
+app:
+  upload-dir: uploads
+
 spring:
   application:
     name: knature-bo
@@ -15,6 +18,10 @@ spring:
     import: optional:classpath:application-secret.yml
   profiles:
     active: dev
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 20MB
   jackson:
     serialization:
       write-dates-as-timestamps: false

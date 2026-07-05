@@ -11,7 +11,14 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.charset.CharsetDecoder;
+import java.nio.charset.CodingErrorAction;
+import java.nio.charset.StandardCharsets;
+import java.nio.ByteBuffer;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -79,5 +86,54 @@ public class OrderController {
     public ResponseEntity<?> updateShipping(@PathVariable Long id, @RequestBody Map<String, String> body) {
         orderService.updateShipping(id, body.get("courierCompany"), body.get("trackingNumber"));
         return ResponseEntity.ok(Map.of("message", "송장이 등록되어 배송중으로 변경되었습니다."));
+    }
+
+    /** 품목별 조회 탭 — 주문 조건으로 OrderItem 목록 */
+    @GetMapping("/items")
+    public ResponseEntity<?> items(@RequestParam(required = false) String keyword,
+                                   @RequestParam(required = false) OrderStatus status,
+                                   @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
+                                   @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to,
+                                   @PageableDefault(size = 20, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
+        return ResponseEntity.ok(orderService.getOrderItems(keyword, status, from, to, pageable));
+    }
+
+    /** 송장 일괄 등록용 CSV 템플릿 다운로드 */
+    @GetMapping("/shipping-template")
+    public ResponseEntity<byte[]> shippingTemplate() {
+        List<String[]> rows = new ArrayList<>();
+        rows.add(new String[]{"주문번호", "택배사", "송장번호"});
+        rows.add(new String[]{"ORD-20260705-001", "CJ대한통운", "123456789012"});
+        return CsvUtil.download("송장일괄등록_템플릿.csv", rows);
+    }
+
+    /** 송장 일괄 등록 — CSV 업로드 (주문번호,택배사,송장번호 / Excel 저장 CSV 호환: UTF-8·MS949) */
+    @PostMapping("/shipping-bulk")
+    public ResponseEntity<?> shippingBulk(@RequestParam("file") MultipartFile file) throws IOException {
+        if (file.isEmpty()) {
+            throw new IllegalArgumentException("파일이 비어 있습니다.");
+        }
+        String content = decodeCsv(file.getBytes());
+        List<String[]> rows = new ArrayList<>();
+        String[] lines = content.split("\r?\n");
+        for (int i = 1; i < lines.length; i++) { // 1행(헤더) 제외
+            String line = lines[i].trim();
+            if (line.isEmpty()) continue;
+            rows.add(line.split(","));
+        }
+        return ResponseEntity.ok(orderService.bulkShipping(rows));
+    }
+
+    /** CSV 인코딩 감지: UTF-8(BOM 포함) 우선, 실패 시 MS949(엑셀 한글 기본) */
+    private static String decodeCsv(byte[] bytes) {
+        int offset = (bytes.length >= 3 && (bytes[0] & 0xFF) == 0xEF && (bytes[1] & 0xFF) == 0xBB && (bytes[2] & 0xFF) == 0xBF) ? 3 : 0;
+        try {
+            CharsetDecoder decoder = StandardCharsets.UTF_8.newDecoder()
+                    .onMalformedInput(CodingErrorAction.REPORT)
+                    .onUnmappableCharacter(CodingErrorAction.REPORT);
+            return decoder.decode(ByteBuffer.wrap(bytes, offset, bytes.length - offset)).toString();
+        } catch (Exception e) {
+            return new String(bytes, offset, bytes.length - offset, Charset.forName("MS949"));
+        }
     }
 }

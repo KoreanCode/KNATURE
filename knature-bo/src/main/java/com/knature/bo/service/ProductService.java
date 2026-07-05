@@ -46,6 +46,41 @@ public class ProductService {
 
     @Transactional
     public Product saveProduct(Product product) {
+        // JSON 바인딩된 이미지/옵션에 역참조 연결 (cascade + orphanRemoval 저장)
+        if (product.getImages() != null) {
+            product.getImages().forEach(img -> img.setProduct(product));
+        }
+        if (product.getOptions() != null) {
+            product.getOptions().forEach(opt -> opt.setProduct(product));
+        }
+        if (product.getId() != null) {
+            // 수정: 영속 엔티티의 컬렉션을 교체해 orphanRemoval 이 확실히 동작하도록 처리
+            Product existing = getProduct(product.getId());
+            existing.setCategory(product.getCategory());
+            existing.setName(product.getName());
+            existing.setCode(product.getCode());
+            existing.setPrice(product.getPrice());
+            existing.setSalePrice(product.getSalePrice());
+            existing.setDescription(product.getDescription());
+            existing.setDetailContent(product.getDetailContent());
+            if (product.getStatus() != null) existing.setStatus(product.getStatus());
+            if (product.getDisplayed() != null) existing.setDisplayed(product.getDisplayed());
+            if (product.getStockQuantity() != null) existing.setStockQuantity(product.getStockQuantity());
+            // 교체 전략: 기존 행 전체 삭제 후 새로 삽입 (id 충돌 방지)
+            existing.getImages().clear();
+            if (product.getImages() != null) {
+                product.getImages().forEach(img -> {
+                    img.setId(null); img.setProduct(existing); existing.getImages().add(img);
+                });
+            }
+            existing.getOptions().clear();
+            if (product.getOptions() != null) {
+                product.getOptions().forEach(opt -> {
+                    opt.setId(null); opt.setProduct(existing); existing.getOptions().add(opt);
+                });
+            }
+            return existing;
+        }
         return productRepository.save(product);
     }
 

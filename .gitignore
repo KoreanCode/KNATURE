@@ -65,6 +65,9 @@ uploads/
 application-secret.yml
 application-local.yml
 
+# 업로드 파일 (로컬 스토리지)
+uploads/
+
 # Misc
 .orange-hyper/
 *.swp
