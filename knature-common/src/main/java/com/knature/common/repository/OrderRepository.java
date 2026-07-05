@@ -17,6 +17,8 @@ import java.util.Optional;
 public interface OrderRepository extends JpaRepository<Order, Long>, JpaSpecificationExecutor<Order> {
     Optional<Order> findByOrderNumber(String orderNumber);
 
+    long countByOrderNumberStartingWith(String prefix);
+
     Page<Order> findByStatus(OrderStatus status, Pageable pageable);
 
     Page<Order> findByOrderNumberContainingOrOrdererNameContaining(String orderNumber, String ordererName, Pageable pageable);

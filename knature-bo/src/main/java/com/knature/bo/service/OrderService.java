@@ -102,8 +102,25 @@ public class OrderService {
     @Transactional
     public void updateStatus(Long id, OrderStatus status) {
         Order order = getOrder(id);
+        OrderStatus from = order.getStatus();
         recordStatusChange(order, status, currentUsername());
         order.setStatus(status);
+        // 취소/반품 완료 시 본사 재고 복원 (FO-BO 연동 — 1차 명세)
+        if ((status == OrderStatus.CANCELLED || status == OrderStatus.RETURN_COMPLETED)
+                && from != OrderStatus.CANCELLED && from != OrderStatus.RETURN_COMPLETED) {
+            restoreStock(order);
+        }
+    }
+
+    /** 주문 상품 재고 복원 + 품절 자동 해제 */
+    private void restoreStock(Order order) {
+        order.getItems().forEach(item -> {
+            var product = item.getProduct();
+            if (product == null) return;
+            int stock = product.getStockQuantity() == null ? 0 : product.getStockQuantity();
+            product.setStockQuantity(stock + item.getQuantity());
+            product.applyStockStatusRule();
+        });
     }
 
     @Transactional
@@ -169,6 +186,7 @@ public class OrderService {
         for (Order order : expired) {
             recordStatusChange(order, OrderStatus.CANCELLED, "system");
             order.setStatus(OrderStatus.CANCELLED);
+            restoreStock(order); // 자동취소 시에도 재고 복원
             String memo = order.getAdminMemo() == null ? "" : order.getAdminMemo() + "\n";
             order.setAdminMemo(memo + "[시스템] 무통장입금 7일 미입금 자동취소");
         }

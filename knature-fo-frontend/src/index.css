@@ -1,0 +1,75 @@
+/* KNATURE FO — 자연주의 스킨케어 브랜드 톤 */
+:root {
+  --brand: #4a6741;        /* 딥 그린 */
+  --brand-light: #eef2ec;
+  --ink: #222;
+  --muted: #8a8a8a;
+}
+
+body {
+  font-family: 'Pretendard', -apple-system, 'Malgun Gothic', sans-serif;
+  color: var(--ink);
+  background: #fff;
+}
+
+a { text-decoration: none; color: inherit; }
+
+.btn-brand {
+  background: var(--brand);
+  color: #fff;
+  border: 1px solid var(--brand);
+}
+.btn-brand:hover { background: #3a5233; color: #fff; }
+.btn-outline-brand {
+  background: #fff;
+  color: var(--brand);
+  border: 1px solid var(--brand);
+}
+.btn-outline-brand:hover { background: var(--brand-light); color: var(--brand); }
+.text-brand { color: var(--brand) !important; }
+.bg-brand-light { background: var(--brand-light); }
+
+/* 헤더 */
+.fo-header { border-bottom: 1px solid #eee; background: #fff; position: sticky; top: 0; z-index: 100; }
+.fo-logo { font-size: 1.5rem; font-weight: 800; letter-spacing: 3px; color: var(--brand); }
+.fo-gnb a { padding: 0 16px; font-weight: 600; font-size: .95rem; color: #333; }
+.fo-gnb a:hover { color: var(--brand); }
+.cart-badge {
+  position: absolute; top: -6px; right: -10px;
+  background: var(--brand); color: #fff; border-radius: 50%;
+  font-size: 11px; min-width: 18px; height: 18px; line-height: 18px; text-align: center;
+}
+
+/* 상품 카드 */
+.product-card { border: none; transition: transform .15s; }
+.product-card:hover { transform: translateY(-4px); }
+.product-thumb {
+  aspect-ratio: 1/1; background: var(--brand-light); border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden; position: relative;
+}
+.product-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.sold-badge {
+  position: absolute; inset: 0; background: rgba(0,0,0,.45);
+  color: #fff; display: flex; align-items: center; justify-content: center;
+  font-weight: 800; letter-spacing: 4px; font-size: 1.2rem;
+}
+
+/* 메인 배너 */
+.main-banner {
+  background: linear-gradient(120deg, #4a6741, #7a9971);
+  color: #fff; border-radius: 12px; min-height: 320px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+}
+
+/* 푸터 */
+.fo-footer { background: #f7f7f5; border-top: 1px solid #eee; font-size: .85rem; color: var(--muted); }
+.fo-footer a { color: #555; }
+
+/* 마이페이지 사이드 */
+.my-nav a { display: block; padding: 8px 4px; color: #444; border-bottom: 1px solid #f0f0f0; }
+.my-nav a.active, .my-nav a:hover { color: var(--brand); font-weight: 700; }
+
+/* 정적 페이지 */
+.static-page h5 { margin-top: 1.5rem; }
+.static-page p, .static-page li { color: #555; font-size: .92rem; line-height: 1.7; }
