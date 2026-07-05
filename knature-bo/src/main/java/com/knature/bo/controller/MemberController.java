@@ -27,4 +27,9 @@ public class MemberController {
     public ResponseEntity<?> detail(@PathVariable Long id) {
         return ResponseEntity.ok(memberService.getMember(id));
     }
+
+    @GetMapping("/{id}/orders")
+    public ResponseEntity<?> orders(@PathVariable Long id) {
+        return ResponseEntity.ok(memberService.getMemberOrders(id));
+    }
 }

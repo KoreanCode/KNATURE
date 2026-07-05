@@ -28,4 +28,6 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     long countOrdersBetween(@Param("from") LocalDateTime from, @Param("to") LocalDateTime to);
 
     List<Order> findByStatusAndCreatedAtBefore(OrderStatus status, LocalDateTime dateTime);
+
+    List<Order> findByMemberIdOrderByIdDesc(Long memberId);
 }

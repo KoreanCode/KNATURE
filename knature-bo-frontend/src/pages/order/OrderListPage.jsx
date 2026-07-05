@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import api from '../../api/client';
 import TopBar from '../../components/TopBar';
+import Pagination from '../../components/Pagination';
 
 const STATUS_LABELS = { PENDING_PAYMENT: '입금전', PREPARING: '배송준비중', SHIPPING: '배송중', DELIVERED: '배송완료', CANCEL_REQUESTED: '취소요청', CANCELLED: '취소완료', EXCHANGE_REQUESTED: '교환요청', RETURN_REQUESTED: '반품요청', REFUND_COMPLETED: '환불완료' };
 const PAY_LABELS = { CREDIT_CARD: '신용카드', BANK_TRANSFER: '무통장입금', KAKAO_PAY: '카카오페이', NAVER_PAY: '네이버페이' };
@@ -56,17 +57,11 @@ export default function OrderListPage() {
           </tbody>
         </table>
 
-        {orders.totalPages > 1 && (
-          <nav>
-            <ul className="pagination pagination-sm justify-content-center">
-              {[...Array(orders.totalPages)].map((_, i) => (
-                <li key={i} className={`page-item ${i === orders.number ? 'active' : ''}`}>
-                  <button className="page-link" onClick={() => setSearchParams({ keyword, status, page: i })}>{i + 1}</button>
-                </li>
-              ))}
-            </ul>
-          </nav>
-        )}
+        <Pagination
+          totalPages={orders.totalPages}
+          page={orders.number}
+          onChange={(p) => setSearchParams({ keyword, status, page: p })}
+        />
       </div>
     </>
   );

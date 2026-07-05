@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import api from '../../api/client';
 import TopBar from '../../components/TopBar';
+import Pagination from '../../components/Pagination';
 
 const GRADE_LABELS = { NEW: '뉴', RUBY: '루비', SILVER: '실버', GOLD: '골드', DIAMOND: '다이아몬드', PLATINUM: '플래티넘' };
 
@@ -54,17 +55,11 @@ export default function MemberListPage() {
           </tbody>
         </table>
 
-        {members.totalPages > 1 && (
-          <nav>
-            <ul className="pagination pagination-sm justify-content-center">
-              {[...Array(members.totalPages)].map((_, i) => (
-                <li key={i} className={`page-item ${i === members.number ? 'active' : ''}`}>
-                  <button className="page-link" onClick={() => setSearchParams({ keyword, grade, page: i })}>{i + 1}</button>
-                </li>
-              ))}
-            </ul>
-          </nav>
-        )}
+        <Pagination
+          totalPages={members.totalPages}
+          page={members.number}
+          onChange={(p) => setSearchParams({ keyword, grade, page: p })}
+        />
       </div>
     </>
   );

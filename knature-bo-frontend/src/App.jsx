@@ -5,7 +5,9 @@ import DashboardPage from './pages/dashboard/DashboardPage'
 import ProductListPage from './pages/product/ProductListPage'
 import ProductFormPage from './pages/product/ProductFormPage'
 import OrderListPage from './pages/order/OrderListPage'
+import OrderDetailPage from './pages/order/OrderDetailPage'
 import MemberListPage from './pages/member/MemberListPage'
+import MemberDetailPage from './pages/member/MemberDetailPage'
 
 export default function App() {
   return (
@@ -17,7 +19,9 @@ export default function App() {
         <Route path="/products/new" element={<ProductFormPage />} />
         <Route path="/products/:id/edit" element={<ProductFormPage />} />
         <Route path="/orders" element={<OrderListPage />} />
+        <Route path="/orders/:id" element={<OrderDetailPage />} />
         <Route path="/members" element={<MemberListPage />} />
+        <Route path="/members/:id" element={<MemberDetailPage />} />
       </Route>
       <Route path="*" element={<Navigate to="/dashboard" replace />} />
     </Routes>

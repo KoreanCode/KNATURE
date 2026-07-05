@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import api from '../../api/client';
 import TopBar from '../../components/TopBar';
+import Pagination from '../../components/Pagination';
 
 const STATUS_LABELS = { ON_SALE: '판매중', SOLD_OUT: '품절', HIDDEN: '숨김' };
 const STATUS_COLORS = { ON_SALE: 'bg-success', SOLD_OUT: 'bg-danger', HIDDEN: 'bg-secondary' };
@@ -59,7 +60,7 @@ export default function ProductListPage() {
           </thead>
           <tbody>
             {products.content.map((p, i) => (
-              <tr key={p.id} style={{ cursor: 'pointer' }} onClick={() => navigate(`/products/${p.id}`)}>
+              <tr key={p.id} style={{ cursor: 'pointer' }} onClick={() => navigate(`/products/${p.id}/edit`)}>
                 <td>{products.number * 20 + i + 1}</td>
                 <td>{p.name}</td>
                 <td>{p.category?.name || '-'}</td>
@@ -75,17 +76,11 @@ export default function ProductListPage() {
           </tbody>
         </table>
 
-        {products.totalPages > 1 && (
-          <nav>
-            <ul className="pagination pagination-sm justify-content-center">
-              {[...Array(products.totalPages)].map((_, i) => (
-                <li key={i} className={`page-item ${i === products.number ? 'active' : ''}`}>
-                  <button className="page-link" onClick={() => setSearchParams({ keyword, status, page: i })}>{i + 1}</button>
-                </li>
-              ))}
-            </ul>
-          </nav>
-        )}
+        <Pagination
+          totalPages={products.totalPages}
+          page={products.number}
+          onChange={(p) => setSearchParams({ keyword, status, page: p })}
+        />
       </div>
     </>
   );
