@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import api from '../../api/client';
 import { removeItems } from '../../utils/cart';
+import { openPostcode } from '../../utils/postcode';
 
 const fmt = (n) => Number(n).toLocaleString();
 const PAY_METHODS = [
@@ -38,7 +39,7 @@ export default function OrderFormPage() {
     zipcode: a.zipcode, address: a.address, addressDetail: a.addressDetail || '',
   }));
 
-  const set = (k) => (e) => setForm({ ...form, [k]: e.target.value });
+  const set = (k) => (e) => setForm((prev) => ({ ...prev, [k]: e.target.value }));
 
   const totalAmount = items.reduce((sum, it) => sum + it.unitPrice * it.quantity, 0);
   const baseFee = parseInt(shopInfo['delivery.baseFee'] || '0') || 0;
@@ -56,7 +57,13 @@ export default function OrderFormPage() {
       });
       // 주문된 상품은 장바구니에서 제거
       removeItems(items.map((it) => ({ productId: it.productId, optionId: it.optionId })));
-      navigate('/order/result', { state: { ...res.data, receiver: form, bank: '우리은행 1005-000-000000 (예금주: 아람티앤씨)' } });
+      navigate('/order/result', {
+        state: {
+          ...res.data,
+          receiver: form,
+          bank: shopInfo['shop.bank'] || '주문 완료 후 고객센터로 문의해주세요',
+        },
+      });
     } catch (err) {
       alert(err.response?.data?.message || '주문에 실패했습니다.');
     } finally {
@@ -102,8 +109,14 @@ export default function OrderFormPage() {
         <div className="row g-2">
           <div className="col-md-6"><input className="form-control form-control-sm" placeholder="수령인 *" value={form.receiverName} onChange={set('receiverName')} /></div>
           <div className="col-md-6"><input className="form-control form-control-sm" placeholder="연락처 *" value={form.receiverPhone} onChange={set('receiverPhone')} /></div>
-          <div className="col-md-3"><input className="form-control form-control-sm" placeholder="우편번호" value={form.zipcode} onChange={set('zipcode')} /></div>
-          <div className="col-md-9"><input className="form-control form-control-sm" placeholder="주소 *" value={form.address} onChange={set('address')} /></div>
+          <div className="col-md-3">
+            <div className="d-flex gap-1">
+              <input className="form-control form-control-sm" placeholder="우편번호" value={form.zipcode} readOnly onChange={set('zipcode')} />
+              <button type="button" className="btn btn-sm btn-outline-brand flex-shrink-0"
+                onClick={() => openPostcode(({ zipcode, address }) => setForm((p) => ({ ...p, zipcode, address })))}>검색</button>
+            </div>
+          </div>
+          <div className="col-md-9"><input className="form-control form-control-sm" placeholder="주소 *" value={form.address} readOnly onChange={set('address')} /></div>
           <div className="col-12"><input className="form-control form-control-sm" placeholder="상세주소" value={form.addressDetail} onChange={set('addressDetail')} /></div>
           <div className="col-12"><input className="form-control form-control-sm" placeholder="배송메모 (예: 문 앞에 놓아주세요)" value={form.deliveryMemo} onChange={set('deliveryMemo')} /></div>
         </div>

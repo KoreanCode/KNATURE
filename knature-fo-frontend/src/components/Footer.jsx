@@ -19,6 +19,7 @@ export default function Footer() {
             {info['shop.bizNumber'] && <div>사업자등록번호: {info['shop.bizNumber']}</div>}
             {info['shop.address'] && <div>{info['shop.address']}</div>}
             <div>고객센터: {info['shop.tel'] || '1544-1089'}{info['shop.email'] ? ` | ${info['shop.email']}` : ''}</div>
+            {info['shop.bank'] && <div>입금계좌: {info['shop.bank']}</div>}
           </div>
           <div className="d-flex flex-column gap-1">
             <Link to="/page/guide">이용안내</Link>

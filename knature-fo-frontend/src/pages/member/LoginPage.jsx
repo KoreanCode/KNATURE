@@ -25,9 +25,9 @@ export default function LoginPage() {
       <h4 className="text-center fw-bold mb-4">로그인</h4>
       <form onSubmit={submit}>
         <input className="form-control mb-2" placeholder="아이디" value={form.username}
-          onChange={(e) => setForm({ ...form, username: e.target.value })} required />
+          onChange={(e) => setForm((prev) => ({ ...prev, username: e.target.value }))} required />
         <input type="password" className="form-control mb-3" placeholder="비밀번호" value={form.password}
-          onChange={(e) => setForm({ ...form, password: e.target.value })} required />
+          onChange={(e) => setForm((prev) => ({ ...prev, password: e.target.value }))} required />
         {error && <div className="alert alert-danger py-2 small">{error}</div>}
         <button className="btn btn-brand w-100 py-2">로그인</button>
       </form>

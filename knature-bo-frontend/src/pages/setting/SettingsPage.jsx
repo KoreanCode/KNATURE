@@ -9,6 +9,7 @@ const SHOP_FIELDS = [
   { key: 'shop.address', label: '주소' },
   { key: 'shop.tel', label: '대표 연락처', placeholder: '1544-1089' },
   { key: 'shop.email', label: '대표 이메일' },
+  { key: 'shop.bank', label: '입금 계좌 (무통장)', placeholder: '우리은행 1005-000-000000 (예금주: 아람티앤씨)' },
 ];
 
 const DELIVERY_FIELDS = [

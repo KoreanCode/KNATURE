@@ -39,17 +39,17 @@ export default function FindAccountPage() {
       {tab === 'id' ? (
         <form onSubmit={findId}>
           <input className="form-control mb-2" placeholder="이름" value={idForm.name}
-            onChange={(e) => setIdForm({ ...idForm, name: e.target.value })} required />
+            onChange={(e) => setIdForm((p) => ({ ...p, name: e.target.value }))} required />
           <input type="email" className="form-control mb-3" placeholder="이메일" value={idForm.email}
-            onChange={(e) => setIdForm({ ...idForm, email: e.target.value })} required />
+            onChange={(e) => setIdForm((p) => ({ ...p, email: e.target.value }))} required />
           <button className="btn btn-brand w-100">아이디 찾기</button>
         </form>
       ) : (
         <form onSubmit={resetPw}>
           <input className="form-control mb-2" placeholder="아이디" value={pwForm.username}
-            onChange={(e) => setPwForm({ ...pwForm, username: e.target.value })} required />
+            onChange={(e) => setPwForm((p) => ({ ...p, username: e.target.value }))} required />
           <input type="email" className="form-control mb-3" placeholder="이메일" value={pwForm.email}
-            onChange={(e) => setPwForm({ ...pwForm, email: e.target.value })} required />
+            onChange={(e) => setPwForm((p) => ({ ...p, email: e.target.value }))} required />
           <button className="btn btn-brand w-100">임시 비밀번호 발급</button>
         </form>
       )}

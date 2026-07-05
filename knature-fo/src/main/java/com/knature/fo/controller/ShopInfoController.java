@@ -18,6 +18,7 @@ public class ShopInfoController {
     /** 공개 허용 키만 노출 (설정 전체 노출 금지) */
     private static final Set<String> PUBLIC_KEYS = Set.of(
             "shop.name", "shop.ceo", "shop.bizNumber", "shop.address", "shop.tel", "shop.email",
+            "shop.bank",
             "delivery.baseFee", "delivery.freeThreshold", "delivery.remoteAreaFee"
     );
 

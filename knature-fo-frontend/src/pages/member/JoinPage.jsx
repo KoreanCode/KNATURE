@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import api from '../../api/client';
+import { openPostcode } from '../../utils/postcode';
 
 // 약관 동의 → 정보 입력 → 가입 완료 (3단계)
 export default function JoinPage() {
@@ -11,7 +12,8 @@ export default function JoinPage() {
   const [error, setError] = useState('');
   const [doneName, setDoneName] = useState('');
 
-  const set = (k) => (e) => setForm({ ...form, [k]: e.target.value });
+  // 함수형 업데이트 — 자동완성 등 연속 입력 시 stale closure로 값이 소실되는 문제 방지
+  const set = (k) => (e) => setForm((prev) => ({ ...prev, [k]: e.target.value }));
 
   const goStep2 = () => {
     if (!agree.terms || !agree.privacy) { setError('필수 약관에 모두 동의해주세요.'); return; }
@@ -76,8 +78,10 @@ export default function JoinPage() {
           <input type="email" className="form-control mb-2" placeholder="이메일 *" value={form.email} onChange={set('email')} required />
           <input className="form-control mb-2" placeholder="휴대폰 (예: 010-1234-5678)" value={form.phone} onChange={set('phone')} />
           <div className="d-flex gap-2 mb-2">
-            <input className="form-control" style={{ maxWidth: 140 }} placeholder="우편번호" value={form.zipcode} onChange={set('zipcode')} />
-            <input className="form-control" placeholder="주소" value={form.address} onChange={set('address')} />
+            <input className="form-control" style={{ maxWidth: 140 }} placeholder="우편번호" value={form.zipcode} readOnly onChange={set('zipcode')} />
+            <input className="form-control" placeholder="주소" value={form.address} readOnly onChange={set('address')} />
+            <button type="button" className="btn btn-outline-brand flex-shrink-0"
+              onClick={() => openPostcode(({ zipcode, address }) => setForm((p) => ({ ...p, zipcode, address })))}>주소 검색</button>
           </div>
           <input className="form-control mb-3" placeholder="상세주소" value={form.addressDetail} onChange={set('addressDetail')} />
           {error && <div className="alert alert-danger py-2 small">{error}</div>}

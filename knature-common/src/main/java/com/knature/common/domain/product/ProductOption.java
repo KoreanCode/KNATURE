@@ -1,5 +1,6 @@
 package com.knature.common.domain.product;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.knature.common.domain.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -16,6 +17,7 @@ public class ProductOption extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id", nullable = false)
+    @JsonIgnore // 역참조 직렬화 방지 (순환·LAZY 프록시)
     private Product product;
 
     @Column(nullable = false, length = 100)

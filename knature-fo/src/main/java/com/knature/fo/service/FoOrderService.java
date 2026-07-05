@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -156,7 +157,16 @@ public class FoOrderService {
     // ===== 조회 (본인 주문만) =====
 
     public List<Order> getMyOrders(String username) {
+        return getMyOrders(username, null);
+    }
+
+    /** 기간별 주문 내역 (months: 1/3/6, null=전체) */
+    public List<Order> getMyOrders(String username, Integer months) {
         Member member = memberRepository.findByUsername(username).orElseThrow();
+        if (months != null && months > 0) {
+            return orderRepository.findByMemberIdAndCreatedAtAfterOrderByIdDesc(
+                    member.getId(), LocalDateTime.now().minusMonths(months));
+        }
         return orderRepository.findByMemberIdOrderByIdDesc(member.getId());
     }
 

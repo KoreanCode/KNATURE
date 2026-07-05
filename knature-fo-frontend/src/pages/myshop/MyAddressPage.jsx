@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import api from '../../api/client';
 import MyLayout from './MyLayout';
+import { openPostcode } from '../../utils/postcode';
 
 const EMPTY = { alias: '', receiverName: '', receiverPhone: '', zipcode: '', address: '', addressDetail: '', isDefault: false };
 
@@ -30,7 +31,7 @@ export default function MyAddressPage() {
     load();
   };
 
-  const set = (k) => (e) => setForm({ ...form, [k]: e.target.value });
+  const set = (k) => (e) => setForm((prev) => ({ ...prev, [k]: e.target.value }));
 
   return (
     <MyLayout title="배송지 관리">
@@ -62,13 +63,15 @@ export default function MyAddressPage() {
             <input className="form-control form-control-sm" placeholder="연락처 *" value={form.receiverPhone} onChange={set('receiverPhone')} />
           </div>
           <div className="d-flex gap-1 mb-1">
-            <input className="form-control form-control-sm" style={{ maxWidth: 120 }} placeholder="우편번호 *" value={form.zipcode} onChange={set('zipcode')} />
-            <input className="form-control form-control-sm" placeholder="주소 *" value={form.address} onChange={set('address')} />
+            <input className="form-control form-control-sm" style={{ maxWidth: 120 }} placeholder="우편번호 *" value={form.zipcode} readOnly onChange={set('zipcode')} />
+            <input className="form-control form-control-sm" placeholder="주소 *" value={form.address} readOnly onChange={set('address')} />
+            <button type="button" className="btn btn-sm btn-outline-brand flex-shrink-0"
+              onClick={() => openPostcode(({ zipcode, address }) => setForm((p) => ({ ...p, zipcode, address })))}>주소 검색</button>
           </div>
           <input className="form-control form-control-sm mb-2" placeholder="상세주소" value={form.addressDetail || ''} onChange={set('addressDetail')} />
           <div className="form-check mb-2">
             <input type="checkbox" className="form-check-input" id="isDefault" checked={!!form.isDefault}
-              onChange={(e) => setForm({ ...form, isDefault: e.target.checked })} />
+              onChange={(e) => setForm((p) => ({ ...p, isDefault: e.target.checked }))} />
             <label className="form-check-label small" htmlFor="isDefault">기본 배송지로 설정</label>
           </div>
           <div className="d-flex gap-2">

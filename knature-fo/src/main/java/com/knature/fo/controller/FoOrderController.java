@@ -53,8 +53,8 @@ public class FoOrderController {
     }
 
     @GetMapping
-    public ResponseEntity<?> myOrders(Authentication auth) {
-        return ResponseEntity.ok(orderService.getMyOrders(auth.getName()));
+    public ResponseEntity<?> myOrders(@RequestParam(required = false) Integer months, Authentication auth) {
+        return ResponseEntity.ok(orderService.getMyOrders(auth.getName(), months));
     }
 
     @GetMapping("/summary")

@@ -36,4 +36,6 @@ public interface OrderRepository extends JpaRepository<Order, Long>, JpaSpecific
     List<Order> findByStatusAndPaymentMethodAndCreatedAtBefore(OrderStatus status, PaymentMethod paymentMethod, LocalDateTime dateTime);
 
     List<Order> findByMemberIdOrderByIdDesc(Long memberId);
+
+    List<Order> findByMemberIdAndCreatedAtAfterOrderByIdDesc(Long memberId, LocalDateTime after);
 }

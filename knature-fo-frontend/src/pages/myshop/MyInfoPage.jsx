@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../api/client';
 import MyLayout from './MyLayout';
+import { openPostcode } from '../../utils/postcode';
 
 export default function MyInfoPage() {
   const navigate = useNavigate();
@@ -54,7 +55,7 @@ export default function MyInfoPage() {
     }
   };
 
-  const set = (k) => (e) => setInfo({ ...info, [k]: e.target.value });
+  const set = (k) => (e) => setInfo((prev) => ({ ...prev, [k]: e.target.value }));
 
   return (
     <MyLayout title="회원정보 수정">
@@ -77,8 +78,10 @@ export default function MyInfoPage() {
             <input className="form-control form-control-sm" value={info.phone || ''} onChange={set('phone')} />
             <label className="form-label small mb-0 mt-2">주소</label>
             <div className="d-flex gap-2 mb-1">
-              <input className="form-control form-control-sm" style={{ maxWidth: 120 }} placeholder="우편번호" value={info.zipcode || ''} onChange={set('zipcode')} />
-              <input className="form-control form-control-sm" placeholder="주소" value={info.address || ''} onChange={set('address')} />
+              <input className="form-control form-control-sm" style={{ maxWidth: 120 }} placeholder="우편번호" value={info.zipcode || ''} readOnly onChange={set('zipcode')} />
+              <input className="form-control form-control-sm" placeholder="주소" value={info.address || ''} readOnly onChange={set('address')} />
+              <button type="button" className="btn btn-sm btn-outline-brand flex-shrink-0"
+                onClick={() => openPostcode(({ zipcode, address }) => setInfo((p) => ({ ...p, zipcode, address })))}>주소 검색</button>
             </div>
             <input className="form-control form-control-sm" placeholder="상세주소" value={info.addressDetail || ''} onChange={set('addressDetail')} />
             <button className="btn btn-sm btn-brand mt-3" onClick={saveInfo}>정보 저장</button>
@@ -87,11 +90,11 @@ export default function MyInfoPage() {
           <div className="border rounded p-3 mb-3" style={{ maxWidth: 520 }}>
             <b className="d-block mb-2">비밀번호 변경</b>
             <input type="password" className="form-control form-control-sm mb-1" placeholder="현재 비밀번호"
-              value={pwForm.currentPassword} onChange={(e) => setPwForm({ ...pwForm, currentPassword: e.target.value })} />
+              value={pwForm.currentPassword} onChange={(e) => setPwForm((p) => ({ ...p, currentPassword: e.target.value }))} />
             <input type="password" className="form-control form-control-sm mb-1" placeholder="새 비밀번호 (8자 이상)"
-              value={pwForm.newPassword} onChange={(e) => setPwForm({ ...pwForm, newPassword: e.target.value })} />
+              value={pwForm.newPassword} onChange={(e) => setPwForm((p) => ({ ...p, newPassword: e.target.value }))} />
             <input type="password" className="form-control form-control-sm mb-2" placeholder="새 비밀번호 확인"
-              value={pwForm.confirm} onChange={(e) => setPwForm({ ...pwForm, confirm: e.target.value })} />
+              value={pwForm.confirm} onChange={(e) => setPwForm((p) => ({ ...p, confirm: e.target.value }))} />
             <button className="btn btn-sm btn-outline-brand" onClick={changePw}>비밀번호 변경</button>
           </div>
 
