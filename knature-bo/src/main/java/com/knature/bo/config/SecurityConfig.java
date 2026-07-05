@@ -54,7 +54,8 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/auth/**").permitAll()
                 // 관리 기능은 최고관리자만 (공장관리자 등은 접근 불가)
-                .requestMatchers("/api/dashboard/**", "/api/products/**", "/api/orders/**", "/api/members/**")
+                .requestMatchers("/api/dashboard/**", "/api/products/**", "/api/orders/**", "/api/members/**",
+                                 "/api/stocks/**", "/api/settings/**", "/api/admins/**")
                     .hasRole("SUPER_ADMIN")
                 .requestMatchers("/api/**").authenticated()
                 .anyRequest().permitAll()

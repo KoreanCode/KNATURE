@@ -47,6 +47,10 @@ public class Product extends BaseEntity {
     @Column(nullable = false)
     private Boolean displayed = true;
 
+    /** 본사(판매) 재고 수량 — 1차 재고관리는 상품 단위 수동 관리 */
+    @Column(nullable = false, columnDefinition = "int default 0")
+    private Integer stockQuantity = 0;
+
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("sortOrder ASC")
     @JsonIgnoreProperties({"product", "hibernateLazyInitializer"})

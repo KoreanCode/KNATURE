@@ -12,11 +12,16 @@ export default function OrderDetailPage() {
   const [order, setOrder] = useState(null);
   const [status, setStatus] = useState('');
   const [memo, setMemo] = useState('');
+  const [courier, setCourier] = useState('');
+  const [tracking, setTracking] = useState('');
   const [error, setError] = useState(null);
 
   const load = () => {
     api.get(`/orders/${id}`)
-      .then((res) => { setOrder(res.data); setStatus(res.data.status); setMemo(res.data.adminMemo || ''); })
+      .then((res) => {
+        setOrder(res.data); setStatus(res.data.status); setMemo(res.data.adminMemo || '');
+        setCourier(res.data.courierCompany || ''); setTracking(res.data.trackingNumber || '');
+      })
       .catch(() => setError('주문 정보를 불러오지 못했습니다.'));
   };
   useEffect(load, [id]);
@@ -28,6 +33,11 @@ export default function OrderDetailPage() {
   };
   const saveMemo = () => {
     api.patch(`/orders/${id}/memo`, { memo }).then(() => alert('메모가 저장되었습니다.'));
+  };
+  const saveShipping = () => {
+    api.patch(`/orders/${id}/shipping`, { courierCompany: courier, trackingNumber: tracking })
+      .then(() => { alert('송장이 등록되어 배송중으로 변경되었습니다.'); load(); })
+      .catch((err) => alert(err.response?.data?.message || '택배사와 송장번호를 모두 입력해주세요.'));
   };
 
   if (error) {
@@ -96,6 +106,17 @@ export default function OrderDetailPage() {
 
       <div className="content-card">
         <h6 className="mb-3">주문 처리</h6>
+        <div className="d-flex gap-2 align-items-center mb-3">
+          <label className="mb-0" style={{ width: 90 }}>송장 입력</label>
+          <select className="form-select form-select-sm" style={{ width: 150 }} value={courier} onChange={(e) => setCourier(e.target.value)}>
+            <option value="">택배사 선택</option>
+            {['CJ대한통운', '한진택배', '롯데택배', '우체국택배', '로젠택배'].map((c) => <option key={c} value={c}>{c}</option>)}
+          </select>
+          <input type="text" className="form-control form-control-sm" style={{ width: 200 }} placeholder="송장번호"
+            value={tracking} onChange={(e) => setTracking(e.target.value)} />
+          <button className="btn btn-sm btn-primary" onClick={saveShipping}>송장 등록 (배송중 처리)</button>
+          {order.trackingNumber && <small className="text-muted">현재: {order.courierCompany} {order.trackingNumber}</small>}
+        </div>
         <div className="d-flex gap-2 align-items-center mb-3">
           <label className="mb-0" style={{ width: 90 }}>상태 변경</label>
           <select className="form-select form-select-sm" style={{ width: 180 }} value={status} onChange={(e) => setStatus(e.target.value)}>

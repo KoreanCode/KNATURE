@@ -5,6 +5,8 @@ const menus = [
   { path: '/orders', icon: 'bi-cart-check', label: '주문 관리' },
   { path: '/products', icon: 'bi-box-seam', label: '상품 관리' },
   { path: '/members', icon: 'bi-people', label: '고객 관리' },
+  { path: '/stocks', icon: 'bi-clipboard-data', label: '재고 관리' },
+  { path: '/settings', icon: 'bi-gear', label: '설정' },
 ];
 
 export default function Sidebar() {

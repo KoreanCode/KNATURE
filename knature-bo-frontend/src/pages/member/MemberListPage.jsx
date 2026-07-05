@@ -29,14 +29,27 @@ export default function MemberListPage() {
     <>
       <TopBar title="고객 관리" />
       <div className="content-card">
-        <form className="d-flex gap-2 mb-3" onSubmit={handleSearch}>
-          <input type="text" className="form-control form-control-sm" placeholder="이름/아이디 검색" value={keyword} onChange={(e) => setKeyword(e.target.value)} style={{ width: 200 }} />
-          <select className="form-select form-select-sm" style={{ width: 140 }} value={grade} onChange={(e) => setSearchParams({ keyword, grade: e.target.value, page: 0 })}>
-            <option value="">전체 등급</option>
-            {Object.entries(GRADE_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
-          </select>
-          <button className="btn btn-sm btn-outline-primary">검색</button>
-        </form>
+        <div className="d-flex justify-content-between mb-3 flex-wrap gap-2">
+          <form className="d-flex gap-2" onSubmit={handleSearch}>
+            <input type="text" className="form-control form-control-sm" placeholder="이름/아이디 검색" value={keyword} onChange={(e) => setKeyword(e.target.value)} style={{ width: 200 }} />
+            <select className="form-select form-select-sm" style={{ width: 140 }} value={grade} onChange={(e) => setSearchParams({ keyword, grade: e.target.value, page: 0 })}>
+              <option value="">전체 등급</option>
+              {Object.entries(GRADE_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+            </select>
+            <button className="btn btn-sm btn-outline-primary">검색</button>
+          </form>
+          <button className="btn btn-sm btn-outline-success" onClick={() => {
+            const params = {};
+            if (keyword) params.keyword = keyword;
+            if (grade) params.grade = grade;
+            api.get('/members/excel', { params, responseType: 'blob' }).then((res) => {
+              const url = URL.createObjectURL(res.data);
+              const a = document.createElement('a');
+              a.href = url; a.download = '회원목록.csv'; a.click();
+              URL.revokeObjectURL(url);
+            });
+          }}><i className="bi bi-file-earmark-excel"></i> 엑셀 다운로드</button>
+        </div>
 
         <table className="table table-hover">
           <thead className="table-light">

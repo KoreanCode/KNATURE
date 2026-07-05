@@ -40,6 +40,11 @@ public class MemberService {
         return orderRepository.findByMemberIdOrderByIdDesc(id);
     }
 
+    /** 엑셀 다운로드용 전체 조회 (필터 동일 적용) */
+    public List<Member> getMembersForExcel(String keyword, MemberGrade grade) {
+        return getMembers(keyword, grade, Pageable.unpaged()).getContent();
+    }
+
     @Transactional
     public void updateGrade(Long id, MemberGrade grade) {
         Member member = getMember(id);

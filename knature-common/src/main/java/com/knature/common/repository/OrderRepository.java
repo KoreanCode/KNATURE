@@ -2,9 +2,11 @@ package com.knature.common.repository;
 
 import com.knature.common.domain.order.Order;
 import com.knature.common.domain.order.OrderStatus;
+import com.knature.common.domain.order.PaymentMethod;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -12,7 +14,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-public interface OrderRepository extends JpaRepository<Order, Long> {
+public interface OrderRepository extends JpaRepository<Order, Long>, JpaSpecificationExecutor<Order> {
     Optional<Order> findByOrderNumber(String orderNumber);
 
     Page<Order> findByStatus(OrderStatus status, Pageable pageable);
@@ -28,6 +30,8 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     long countOrdersBetween(@Param("from") LocalDateTime from, @Param("to") LocalDateTime to);
 
     List<Order> findByStatusAndCreatedAtBefore(OrderStatus status, LocalDateTime dateTime);
+
+    List<Order> findByStatusAndPaymentMethodAndCreatedAtBefore(OrderStatus status, PaymentMethod paymentMethod, LocalDateTime dateTime);
 
     List<Order> findByMemberIdOrderByIdDesc(Long memberId);
 }

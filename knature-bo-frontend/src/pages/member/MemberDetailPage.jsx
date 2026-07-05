@@ -60,7 +60,18 @@ export default function MemberDetailPage() {
             </tr>
             <tr>
               <th className="table-light">등급</th>
-              <td><span className="badge bg-primary">{GRADE_LABELS[member.grade] || member.grade}</span></td>
+              <td>
+                <div className="d-flex gap-2 align-items-center">
+                  <select className="form-select form-select-sm" style={{ width: 130 }} value={member.grade}
+                    onChange={(e) => setMember({ ...member, grade: e.target.value })}>
+                    {Object.entries(GRADE_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+                  </select>
+                  <button className="btn btn-sm btn-outline-primary" onClick={() => {
+                    api.patch(`/members/${id}/grade`, { grade: member.grade })
+                      .then(() => alert('회원 등급이 변경되었습니다.'));
+                  }}>등급 변경</button>
+                </div>
+              </td>
               <th className="table-light">상태</th>
               <td>{member.active
                 ? <span className="badge bg-success">활성</span>

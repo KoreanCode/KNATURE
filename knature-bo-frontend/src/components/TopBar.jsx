@@ -1,8 +1,14 @@
+import { useEffect, useState } from 'react';
 import api from '../api/client';
 import { useNavigate } from 'react-router-dom';
 
-export default function TopBar({ title, user }) {
+export default function TopBar({ title }) {
   const navigate = useNavigate();
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    api.get('/auth/me').then((res) => setUser(res.data)).catch(() => {});
+  }, []);
 
   const handleLogout = async () => {
     await api.post('/auth/logout');

@@ -74,6 +74,13 @@ public class Order extends BaseEntity {
     @Column(columnDefinition = "TEXT")
     private String adminMemo;
 
+    /** 배송 처리 — 택배사 / 송장번호 (송장 입력 시 배송중 전환) */
+    @Column(length = 50)
+    private String courierCompany;
+
+    @Column(length = 50)
+    private String trackingNumber;
+
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnoreProperties({"order", "hibernateLazyInitializer"})
     private List<OrderItem> items = new ArrayList<>();
