@@ -1,7 +1,11 @@
 package com.knature.fo.service;
 
 import com.knature.common.domain.member.Member;
+import com.knature.common.domain.mileage.MileageHistory.MileageType;
 import com.knature.common.repository.MemberRepository;
+import com.knature.common.repository.ShopSettingRepository;
+import com.knature.common.service.CouponService;
+import com.knature.common.service.MileageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -16,6 +20,9 @@ public class MemberAuthService {
 
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
+    private final MileageService mileageService;
+    private final CouponService couponService;
+    private final ShopSettingRepository shopSettingRepository;
 
     private static final SecureRandom RANDOM = new SecureRandom();
     private static final String TEMP_PW_CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789";
@@ -46,7 +53,17 @@ public class MemberAuthService {
         member.setZipcode(zipcode);
         member.setAddress(address);
         member.setAddressDetail(addressDetail);
-        return memberRepository.save(member);
+        Member saved = memberRepository.save(member);
+
+        // 가입 혜택: 적립금(설정 mileage.joinBonus, 기본 5,000P) + WELCOME 쿠폰(가입 20% 할인)
+        long joinBonus = shopSettingRepository.findBySettingKey("mileage.joinBonus")
+                .map(s -> { try { return Long.parseLong(s.getSettingValue().trim()); } catch (Exception e) { return 5000L; } })
+                .orElse(5000L);
+        if (joinBonus > 0) {
+            mileageService.change(saved, joinBonus, MileageType.JOIN, "회원가입 축하 적립금");
+        }
+        couponService.issueByCode(saved, "WELCOME");
+        return saved;
     }
 
     public Member getByUsername(String username) {

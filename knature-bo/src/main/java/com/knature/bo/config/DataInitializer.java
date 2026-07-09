@@ -2,6 +2,7 @@ package com.knature.bo.config;
 
 import com.knature.common.domain.admin.Admin;
 import com.knature.common.domain.admin.AdminRole;
+import com.knature.common.domain.coupon.Coupon;
 import com.knature.common.domain.member.Member;
 import com.knature.common.domain.member.MemberGrade;
 import com.knature.common.domain.order.Order;
@@ -12,6 +13,7 @@ import com.knature.common.domain.product.Product;
 import com.knature.common.domain.product.ProductCategory;
 import com.knature.common.domain.product.ProductStatus;
 import com.knature.common.repository.AdminRepository;
+import com.knature.common.repository.CouponRepository;
 import com.knature.common.repository.MemberRepository;
 import com.knature.common.repository.OrderRepository;
 import com.knature.common.repository.ProductCategoryRepository;
@@ -34,6 +36,7 @@ public class DataInitializer implements CommandLineRunner {
     private final MemberRepository memberRepository;
     private final ProductRepository productRepository;
     private final OrderRepository orderRepository;
+    private final CouponRepository couponRepository;
     private final PasswordEncoder passwordEncoder;
 
     @Override
@@ -43,6 +46,21 @@ public class DataInitializer implements CommandLineRunner {
         seedMembers();
         seedProducts();
         seedOrders();
+        seedWelcomeCoupon();
+    }
+
+    /** 가입 자동발급용 WELCOME 쿠폰 (20% 할인, 상한 3만원) — FO 가입 시 issueByCode("WELCOME") */
+    private void seedWelcomeCoupon() {
+        if (couponRepository.findByCode("WELCOME").isPresent()) return;
+        couponRepository.save(Coupon.builder()
+                .code("WELCOME")
+                .name("신규가입 20% 할인쿠폰")
+                .discountType(Coupon.DiscountType.PERCENT)
+                .amount(20L)
+                .maxDiscount(30_000L)
+                .minOrderAmount(0L)
+                .build());
+        log.info("WELCOME 쿠폰 생성 완료");
     }
 
     private void seedAdmin() {

@@ -20,6 +20,11 @@ export default function OrderFormPage() {
   const [form, setForm] = useState({ receiverName: '', receiverPhone: '', zipcode: '', address: '', addressDetail: '', deliveryMemo: '' });
   const [payMethod, setPayMethod] = useState('BANK_TRANSFER');
   const [submitting, setSubmitting] = useState(false);
+  // 적립금/쿠폰 (2차)
+  const [mileageBalance, setMileageBalance] = useState(0);
+  const [useMileage, setUseMileage] = useState(0);
+  const [myCoupons, setMyCoupons] = useState([]);
+  const [couponId, setCouponId] = useState('');
 
   useEffect(() => {
     if (items.length === 0) { navigate('/cart'); return; }
@@ -32,6 +37,8 @@ export default function OrderFormPage() {
       if (def) applyAddress(def);
     }).catch(() => {});
     api.get('/shop-info').then((res) => setShopInfo(res.data)).catch(() => {});
+    api.get('/mypage/mileage').then((res) => setMileageBalance(res.data.balance)).catch(() => {});
+    api.get('/mypage/coupons').then((res) => setMyCoupons(res.data.filter((mc) => !mc.used))).catch(() => {});
   }, []);
 
   const applyAddress = (a) => setForm((f) => ({
@@ -46,6 +53,25 @@ export default function OrderFormPage() {
   const freeThreshold = parseInt(shopInfo['delivery.freeThreshold'] || '0') || 0;
   const deliveryFee = freeThreshold > 0 && totalAmount >= freeThreshold ? 0 : baseFee;
 
+  // 쿠폰 할인 미리보기 (서버에서 최종 재검증)
+  const selectedCoupon = myCoupons.find((mc) => String(mc.id) === couponId);
+  const couponDiscount = (() => {
+    if (!selectedCoupon) return 0;
+    const c = selectedCoupon.coupon;
+    if (totalAmount < c.minOrderAmount) return 0;
+    let d = c.discountType === 'PERCENT' ? Math.floor(totalAmount * c.amount / 100) : c.amount;
+    if (c.maxDiscount && d > c.maxDiscount) d = c.maxDiscount;
+    return Math.min(d, totalAmount);
+  })();
+  const payable = totalAmount + deliveryFee - couponDiscount;
+  const mileageApplied = Math.min(useMileage || 0, mileageBalance, payable);
+  const finalAmount = payable - mileageApplied;
+
+  const setMileageInput = (v) => {
+    const n = Math.max(0, parseInt(v) || 0);
+    setUseMileage(Math.min(n, mileageBalance, payable));
+  };
+
   const submit = async () => {
     if (!form.receiverName || !form.address) { alert('배송지 정보를 입력해주세요.'); return; }
     setSubmitting(true);
@@ -53,6 +79,8 @@ export default function OrderFormPage() {
       const res = await api.post('/orders', {
         items: items.map((it) => ({ productId: it.productId, optionId: it.optionId, quantity: it.quantity })),
         paymentMethod: payMethod,
+        useMileage: mileageApplied,
+        memberCouponId: selectedCoupon ? selectedCoupon.id : null,
         ...form,
       });
       // 주문된 상품은 장바구니에서 제거
@@ -136,18 +164,50 @@ export default function OrderFormPage() {
           : <div className="small text-muted mt-2">테스트 환경에서는 결제창 없이 결제 완료로 처리됩니다. (PG 연동 예정)</div>}
       </div>
 
+      {/* 할인 — 쿠폰 / 적립금 */}
+      <div className="border rounded p-3 mb-3">
+        <b className="d-block mb-2">할인 적용</b>
+        <div className="row g-2 align-items-center">
+          <div className="col-md-6">
+            <label className="form-label small mb-0">쿠폰 (보유 {myCoupons.length}장)</label>
+            <select className="form-select form-select-sm" value={couponId} onChange={(e) => setCouponId(e.target.value)}>
+              <option value="">쿠폰 선택 안 함</option>
+              {myCoupons.map((mc) => (
+                <option key={mc.id} value={mc.id} disabled={totalAmount < mc.coupon.minOrderAmount}>
+                  {mc.coupon.name}
+                  {totalAmount < mc.coupon.minOrderAmount ? ` (${fmt(mc.coupon.minOrderAmount)}원 이상)` : ''}
+                </option>
+              ))}
+            </select>
+            {couponDiscount > 0 && <small className="text-brand">-{fmt(couponDiscount)}원 할인 적용</small>}
+          </div>
+          <div className="col-md-6">
+            <label className="form-label small mb-0">적립금 (보유 {fmt(mileageBalance)}P)</label>
+            <div className="d-flex gap-1">
+              <input type="number" min="0" className="form-control form-control-sm" value={useMileage}
+                onChange={(e) => setMileageInput(e.target.value)} />
+              <button type="button" className="btn btn-sm btn-outline-brand flex-shrink-0"
+                onClick={() => setMileageInput(mileageBalance)}>전액 사용</button>
+            </div>
+            {mileageApplied > 0 && <small className="text-brand">-{fmt(mileageApplied)}P 사용</small>}
+          </div>
+        </div>
+      </div>
+
       {/* 결제 금액 */}
       <div className="bg-brand-light rounded p-3 mb-3">
         <div className="d-flex justify-content-between small"><span>상품금액</span><span>{fmt(totalAmount)}원</span></div>
         <div className="d-flex justify-content-between small"><span>배송비</span><span>{deliveryFee === 0 ? '무료' : fmt(deliveryFee) + '원'}</span></div>
+        {couponDiscount > 0 && <div className="d-flex justify-content-between small text-danger"><span>쿠폰 할인</span><span>-{fmt(couponDiscount)}원</span></div>}
+        {mileageApplied > 0 && <div className="d-flex justify-content-between small text-danger"><span>적립금 사용</span><span>-{fmt(mileageApplied)}P</span></div>}
         <hr className="my-2" />
         <div className="d-flex justify-content-between fw-bold fs-5">
-          <span>최종 결제금액</span><span className="text-brand">{fmt(totalAmount + deliveryFee)}원</span>
+          <span>최종 결제금액</span><span className="text-brand">{fmt(finalAmount)}원</span>
         </div>
       </div>
 
       <button className="btn btn-brand w-100 py-2 fs-5" onClick={submit} disabled={submitting}>
-        {submitting ? '주문 처리 중...' : `${fmt(totalAmount + deliveryFee)}원 결제하기`}
+        {submitting ? '주문 처리 중...' : `${fmt(finalAmount)}원 결제하기`}
       </button>
     </div>
   );

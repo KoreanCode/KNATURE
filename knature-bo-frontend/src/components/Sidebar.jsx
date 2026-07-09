@@ -6,6 +6,8 @@ const menus = [
   { path: '/products', icon: 'bi-box-seam', label: '상품 관리' },
   { path: '/members', icon: 'bi-people', label: '고객 관리' },
   { path: '/stocks', icon: 'bi-clipboard-data', label: '재고 관리' },
+  { path: '/mileages', icon: 'bi-coin', label: '적립금 관리' },
+  { path: '/coupons', icon: 'bi-ticket-perforated', label: '쿠폰 관리' },
   { path: '/settings', icon: 'bi-gear', label: '설정' },
 ];
 

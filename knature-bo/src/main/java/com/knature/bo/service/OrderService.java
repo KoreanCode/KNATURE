@@ -1,13 +1,17 @@
 package com.knature.bo.service;
 
+import com.knature.common.domain.member.Member;
+import com.knature.common.domain.mileage.MileageHistory.MileageType;
 import com.knature.common.domain.order.Order;
 import com.knature.common.domain.order.OrderItem;
 import com.knature.common.domain.order.OrderStatus;
 import com.knature.common.domain.order.OrderStatusHistory;
 import com.knature.common.domain.order.PaymentMethod;
+import com.knature.common.repository.MemberCouponRepository;
 import com.knature.common.repository.OrderItemRepository;
 import com.knature.common.repository.OrderRepository;
 import com.knature.common.repository.OrderStatusHistoryRepository;
+import com.knature.common.service.MileageService;
 import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,6 +39,8 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final OrderItemRepository orderItemRepository;
     private final OrderStatusHistoryRepository statusHistoryRepository;
+    private final MemberCouponRepository memberCouponRepository;
+    private final MileageService mileageService;
 
     public Page<Order> getOrders(String keyword, OrderStatus status, LocalDate from, LocalDate to, Pageable pageable) {
         return orderRepository.findAll(buildSpec(keyword, status, from, to), pageable);
@@ -105,10 +111,15 @@ public class OrderService {
         OrderStatus from = order.getStatus();
         recordStatusChange(order, status, currentUsername());
         order.setStatus(status);
-        // 취소/반품 완료 시 본사 재고 복원 (FO-BO 연동 — 1차 명세)
+        // 취소/반품 완료 시: 재고 복원 + 적립금 환급 + 쿠폰 복구
         if ((status == OrderStatus.CANCELLED || status == OrderStatus.RETURN_COMPLETED)
                 && from != OrderStatus.CANCELLED && from != OrderStatus.RETURN_COMPLETED) {
             restoreStock(order);
+            refundBenefits(order);
+        }
+        // 배송완료 시: 구매확정 — 실적 누적 + 등급 자동 승급 + 등급별 구매 적립 (2차)
+        if (status == OrderStatus.DELIVERED && from != OrderStatus.DELIVERED) {
+            confirmPurchase(order);
         }
     }
 
@@ -121,6 +132,38 @@ public class OrderService {
             product.setStockQuantity(stock + item.getQuantity());
             product.applyStockStatusRule();
         });
+    }
+
+    /** 취소 시 사용 적립금 환급 + 사용 쿠폰 복구 */
+    private void refundBenefits(Order order) {
+        Member member = order.getMember();
+        if (member == null) return;
+        long usedMileage = order.getUsedMileage() == null ? 0 : order.getUsedMileage();
+        if (usedMileage > 0) {
+            mileageService.change(member, usedMileage, MileageType.REFUND,
+                    "주문 취소 환급 (" + order.getOrderNumber() + ")");
+        }
+        if (order.getUsedMemberCouponId() != null) {
+            memberCouponRepository.findById(order.getUsedMemberCouponId())
+                    .ifPresent(mc -> mc.restore());
+        }
+    }
+
+    /** 구매확정 — 총구매금액 누적 → 등급 자동 재계산 → 등급별 적립율 구매 적립 */
+    private void confirmPurchase(Order order) {
+        Member member = order.getMember();
+        if (member == null) return;
+        long amount = order.getPaymentAmount() == null ? 0 : order.getPaymentAmount();
+        member.setTotalPurchaseAmount((member.getTotalPurchaseAmount() == null ? 0 : member.getTotalPurchaseAmount()) + amount);
+        member.recalculateGrade();
+        int rate = member.getGrade().getRewardRate();
+        long reward = amount * rate / 100;
+        if (reward > 0) {
+            mileageService.change(member, reward, MileageType.PURCHASE,
+                    "구매 적립 " + rate + "% (" + order.getOrderNumber() + ")");
+        }
+        log.info("구매확정: {} → 총구매 {}원, 등급 {}, 적립 {}P",
+                member.getUsername(), member.getTotalPurchaseAmount(), member.getGrade(), reward);
     }
 
     @Transactional

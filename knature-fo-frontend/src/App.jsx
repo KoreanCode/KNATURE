@@ -15,6 +15,8 @@ import MyOrdersPage from './pages/myshop/MyOrdersPage'
 import MyOrderDetailPage from './pages/myshop/MyOrderDetailPage'
 import MyInfoPage from './pages/myshop/MyInfoPage'
 import MyAddressPage from './pages/myshop/MyAddressPage'
+import MyMileagePage from './pages/myshop/MyMileagePage'
+import MyCouponPage from './pages/myshop/MyCouponPage'
 import StaticPage from './pages/static/StaticPage'
 
 export default function App() {
@@ -37,6 +39,8 @@ export default function App() {
           <Route path="/myshop/orders/:id" element={<MyOrderDetailPage />} />
           <Route path="/myshop/info" element={<MyInfoPage />} />
           <Route path="/myshop/address" element={<MyAddressPage />} />
+          <Route path="/myshop/mileage" element={<MyMileagePage />} />
+          <Route path="/myshop/coupon" element={<MyCouponPage />} />
           <Route path="/page/:slug" element={<StaticPage />} />
           <Route path="*" element={<MainPage />} />
         </Routes>

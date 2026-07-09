@@ -11,6 +11,8 @@ import MemberListPage from './pages/member/MemberListPage'
 import MemberDetailPage from './pages/member/MemberDetailPage'
 import StockListPage from './pages/stock/StockListPage'
 import SettingsPage from './pages/setting/SettingsPage'
+import MileagePage from './pages/benefit/MileagePage'
+import CouponPage from './pages/benefit/CouponPage'
 
 export default function App() {
   return (
@@ -27,6 +29,8 @@ export default function App() {
         <Route path="/members" element={<MemberListPage />} />
         <Route path="/members/:id" element={<MemberDetailPage />} />
         <Route path="/stocks" element={<StockListPage />} />
+        <Route path="/mileages" element={<MileagePage />} />
+        <Route path="/coupons" element={<CouponPage />} />
         <Route path="/settings" element={<SettingsPage />} />
       </Route>
       <Route path="*" element={<Navigate to="/dashboard" replace />} />

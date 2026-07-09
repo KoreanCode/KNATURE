@@ -63,6 +63,18 @@ public class Order extends BaseEntity {
     @Column(nullable = false)
     private Long paymentAmount = 0L;
 
+    /** 사용한 적립금 (취소 시 환급) */
+    @Column(nullable = false, columnDefinition = "bigint default 0")
+    private Long usedMileage = 0L;
+
+    /** 쿠폰 할인액 */
+    @Column(nullable = false, columnDefinition = "bigint default 0")
+    private Long couponDiscount = 0L;
+
+    /** 사용한 회원 쿠폰 id (취소 시 복구) */
+    @Column
+    private Long usedMemberCouponId;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private PaymentMethod paymentMethod;

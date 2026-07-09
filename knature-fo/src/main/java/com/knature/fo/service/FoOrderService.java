@@ -1,10 +1,14 @@
 package com.knature.fo.service;
 
+import com.knature.common.domain.coupon.MemberCoupon;
 import com.knature.common.domain.member.Member;
+import com.knature.common.domain.mileage.MileageHistory.MileageType;
 import com.knature.common.domain.order.*;
 import com.knature.common.domain.product.Product;
 import com.knature.common.domain.product.ProductOption;
 import com.knature.common.repository.*;
+import com.knature.common.service.CouponService;
+import com.knature.common.service.MileageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -28,18 +32,22 @@ public class FoOrderService {
     private final MemberRepository memberRepository;
     private final OrderStatusHistoryRepository statusHistoryRepository;
     private final ShopSettingRepository shopSettingRepository;
+    private final MemberCouponRepository memberCouponRepository;
+    private final MileageService mileageService;
+    private final CouponService couponService;
 
     /** 주문 항목 요청 (productId, optionId nullable, quantity) */
     public record OrderItemRequest(Long productId, Long optionId, int quantity) {}
 
     /**
      * 주문 생성 — 가격은 서버에서 재계산(클라이언트 금액 불신), 재고 검증·차감, 주문번호 발급.
-     * 무통장입금 → 입금전 / 그 외(카드·카카오·네이버는 1차 모의결제) → 배송준비중
+     * 적립금 사용/쿠폰 적용은 서버에서 재검증. 무통장 → 입금전 / 그 외(1차 모의결제) → 배송준비중
      */
     @Transactional
     public Order createOrder(String username, List<OrderItemRequest> items, PaymentMethod paymentMethod,
                              String receiverName, String receiverPhone, String zipcode,
-                             String address, String addressDetail, String deliveryMemo) {
+                             String address, String addressDetail, String deliveryMemo,
+                             long useMileage, Long memberCouponId) {
         if (items == null || items.isEmpty()) {
             throw new IllegalArgumentException("주문할 상품이 없습니다.");
         }
@@ -86,7 +94,29 @@ public class FoOrderService {
         // 2) 배송비 — BO 설정(배송 정책) 연동
         long deliveryFee = calculateDeliveryFee(totalAmount);
 
-        // 3) 주문 생성
+        // 3) 쿠폰 적용 (서버 재검증)
+        long couponDiscount = 0;
+        MemberCoupon memberCoupon = null;
+        if (memberCouponId != null) {
+            memberCoupon = memberCouponRepository.findByIdAndMemberId(memberCouponId, member.getId())
+                    .orElseThrow(() -> new IllegalArgumentException("보유하지 않은 쿠폰입니다."));
+            couponDiscount = couponService.validateAndCalculate(memberCoupon, totalAmount);
+            memberCoupon.use();
+        }
+
+        // 4) 적립금 사용 (잔액 검증 + 결제금액 초과 방지)
+        long payable = totalAmount + deliveryFee - couponDiscount;
+        if (useMileage < 0) {
+            throw new IllegalArgumentException("적립금 사용액이 올바르지 않습니다.");
+        }
+        if (useMileage > payable) {
+            useMileage = payable; // 결제금액까지만 사용
+        }
+        if (useMileage > 0) {
+            mileageService.change(member, -useMileage, MileageType.USE, "주문 사용");
+        }
+
+        // 5) 주문 생성
         Order order = Order.builder()
                 .orderNumber(generateOrderNumber())
                 .member(member)
@@ -101,9 +131,12 @@ public class FoOrderService {
                 .deliveryMemo(deliveryMemo)
                 .totalAmount(totalAmount)
                 .deliveryFee(deliveryFee)
-                .paymentAmount(totalAmount + deliveryFee)
+                .paymentAmount(payable - useMileage)
                 .paymentMethod(paymentMethod)
                 .build();
+        order.setUsedMileage(useMileage);
+        order.setCouponDiscount(couponDiscount);
+        order.setUsedMemberCouponId(memberCoupon != null ? memberCoupon.getId() : null);
         // 무통장은 입금 대기, 그 외는 결제 완료로 간주(1차 모의결제) → 배송준비중
         if (paymentMethod != PaymentMethod.BANK_TRANSFER) {
             order.setStatus(OrderStatus.PREPARING);

@@ -23,6 +23,8 @@ export default function MyLayout({ title, children }) {
           <nav className="my-nav">
             <NavLink to="/myshop" end>마이쇼핑 홈</NavLink>
             <NavLink to="/myshop/orders">주문 조회</NavLink>
+            <NavLink to="/myshop/mileage">적립금 내역</NavLink>
+            <NavLink to="/myshop/coupon">쿠폰 내역</NavLink>
             <NavLink to="/cart">장바구니</NavLink>
             <NavLink to="/myshop/address">배송지 관리</NavLink>
             <NavLink to="/myshop/info">회원정보 수정</NavLink>

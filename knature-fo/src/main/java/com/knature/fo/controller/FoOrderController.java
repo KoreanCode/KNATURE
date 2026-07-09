@@ -32,6 +32,9 @@ public class FoOrderController {
                 ((Number) m.get("quantity")).intValue()
         )).toList();
 
+        long useMileage = body.get("useMileage") != null ? ((Number) body.get("useMileage")).longValue() : 0;
+        Long memberCouponId = body.get("memberCouponId") != null ? ((Number) body.get("memberCouponId")).longValue() : null;
+
         Order order = orderService.createOrder(
                 auth.getName(),
                 items,
@@ -41,12 +44,16 @@ public class FoOrderController {
                 (String) body.get("zipcode"),
                 (String) body.get("address"),
                 (String) body.get("addressDetail"),
-                (String) body.get("deliveryMemo")
+                (String) body.get("deliveryMemo"),
+                useMileage,
+                memberCouponId
         );
         return ResponseEntity.ok(Map.of(
                 "orderId", order.getId(),
                 "orderNumber", order.getOrderNumber(),
                 "paymentAmount", order.getPaymentAmount(),
+                "usedMileage", order.getUsedMileage(),
+                "couponDiscount", order.getCouponDiscount(),
                 "paymentMethod", order.getPaymentMethod().name(),
                 "status", order.getStatus().name()
         ));
