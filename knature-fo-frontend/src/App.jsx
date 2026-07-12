@@ -1,4 +1,4 @@
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, Navigate } from 'react-router-dom'
 import Header from './components/Header'
 import Footer from './components/Footer'
 import MainPage from './pages/MainPage'
@@ -46,7 +46,7 @@ export default function App() {
           <Route path="/myshop/inquiry" element={<MyInquiryPage />} />
           <Route path="/community" element={<CommunityPage />} />
           <Route path="/page/:slug" element={<StaticPage />} />
-          <Route path="*" element={<MainPage />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
       <Footer />

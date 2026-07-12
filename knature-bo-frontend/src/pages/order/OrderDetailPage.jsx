@@ -67,7 +67,16 @@ export default function OrderDetailPage() {
             </tr>
             <tr>
               <th className="table-light">결제수단</th><td>{PAY_LABELS[order.paymentMethod] || order.paymentMethod}</td>
-              <th className="table-light">결제금액</th><td><strong>{fmt(order.paymentAmount)}원</strong> (상품 {fmt(order.totalAmount)} + 배송 {fmt(order.deliveryFee)})</td>
+              <th className="table-light">결제금액</th>
+              <td>
+                <strong>{fmt(order.paymentAmount)}원</strong> (상품 {fmt(order.totalAmount)} + 배송 {fmt(order.deliveryFee)})
+                {(order.couponDiscount > 0 || order.usedMileage > 0) && (
+                  <div className="small text-muted">
+                    {order.couponDiscount > 0 && <span className="me-2">쿠폰 할인 -{fmt(order.couponDiscount)}원</span>}
+                    {order.usedMileage > 0 && <span>적립금 사용 -{fmt(order.usedMileage)}P</span>}
+                  </div>
+                )}
+              </td>
             </tr>
             <tr>
               <th className="table-light">수령인</th><td>{order.receiverName} / {order.receiverPhone || '-'}</td>
