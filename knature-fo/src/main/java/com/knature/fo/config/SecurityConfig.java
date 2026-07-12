@@ -52,11 +52,12 @@ public class SecurityConfig {
                 .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
             )
             .authorizeHttpRequests(auth -> auth
-                // 공개: 인증, 카탈로그(상품/카테고리 조회), 상점 정보
+                // 공개: 인증, 카탈로그(상품/카테고리 조회), 상점 정보, 게시판(공지/이벤트/FAQ)·상품후기 조회
                 .requestMatchers("/api/auth/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/categories/**", "/api/products/**", "/api/shop-info").permitAll()
-                // 회원 전용: 주문, 마이페이지, 배송지
-                .requestMatchers("/api/orders/**", "/api/mypage/**", "/api/addresses/**").hasRole("MEMBER")
+                .requestMatchers(HttpMethod.GET, "/api/categories/**", "/api/products/**", "/api/shop-info", "/api/articles/**").permitAll()
+                // 회원 전용: 주문, 마이페이지, 배송지, 후기 작성, 1:1 문의
+                .requestMatchers("/api/orders/**", "/api/mypage/**", "/api/addresses/**",
+                                 "/api/reviews/**", "/api/inquiries/**").hasRole("MEMBER")
                 .requestMatchers("/api/**").authenticated()
                 .anyRequest().permitAll()
             )

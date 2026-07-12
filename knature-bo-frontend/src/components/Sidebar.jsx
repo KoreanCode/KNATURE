@@ -8,6 +8,8 @@ const menus = [
   { path: '/stocks', icon: 'bi-clipboard-data', label: '재고 관리' },
   { path: '/mileages', icon: 'bi-coin', label: '적립금 관리' },
   { path: '/coupons', icon: 'bi-ticket-perforated', label: '쿠폰 관리' },
+  { path: '/boards', icon: 'bi-megaphone', label: '게시판 관리' },
+  { path: '/cs', icon: 'bi-chat-left-text', label: '문의/후기' },
   { path: '/settings', icon: 'bi-gear', label: '설정' },
 ];
 

@@ -13,6 +13,8 @@ import StockListPage from './pages/stock/StockListPage'
 import SettingsPage from './pages/setting/SettingsPage'
 import MileagePage from './pages/benefit/MileagePage'
 import CouponPage from './pages/benefit/CouponPage'
+import BoardPage from './pages/board/BoardPage'
+import CsPage from './pages/board/CsPage'
 
 export default function App() {
   return (
@@ -31,6 +33,8 @@ export default function App() {
         <Route path="/stocks" element={<StockListPage />} />
         <Route path="/mileages" element={<MileagePage />} />
         <Route path="/coupons" element={<CouponPage />} />
+        <Route path="/boards" element={<BoardPage />} />
+        <Route path="/cs" element={<CsPage />} />
         <Route path="/settings" element={<SettingsPage />} />
       </Route>
       <Route path="*" element={<Navigate to="/dashboard" replace />} />
