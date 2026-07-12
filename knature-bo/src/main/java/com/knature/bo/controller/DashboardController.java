@@ -32,4 +32,10 @@ public class DashboardController {
         result.put("totalProducts", dashboardService.getTotalProducts());
         return ResponseEntity.ok(result);
     }
+
+    /** 기간별 매출 — period: daily(14일) | weekly(8주) | monthly(6개월) */
+    @GetMapping("/sales")
+    public ResponseEntity<?> sales(@org.springframework.web.bind.annotation.RequestParam(defaultValue = "daily") String period) {
+        return ResponseEntity.ok(dashboardService.getSalesSeries(period));
+    }
 }

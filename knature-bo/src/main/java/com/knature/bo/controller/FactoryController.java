@@ -40,6 +40,7 @@ public class FactoryController {
                 .phone(body.get("phone"))
                 .managerName(body.get("managerName"))
                 .leadTimeDays(parseInt(body.get("leadTimeDays"), 7))
+                .region(body.get("region"))
                 .build();
         return ResponseEntity.ok(factoryRepository.save(factory));
     }
@@ -54,6 +55,7 @@ public class FactoryController {
         if (body.get("phone") != null) factory.setPhone(body.get("phone"));
         if (body.get("managerName") != null) factory.setManagerName(body.get("managerName"));
         if (body.get("leadTimeDays") != null) factory.setLeadTimeDays(parseInt(body.get("leadTimeDays"), 7));
+        if (body.get("region") != null) factory.setRegion(body.get("region"));
         if (body.get("active") != null) factory.setActive("true".equals(body.get("active")));
         return ResponseEntity.ok(factory);
     }

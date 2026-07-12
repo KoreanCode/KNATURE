@@ -10,6 +10,8 @@ import java.util.List;
 public interface PurchaseOrderRepository extends JpaRepository<PurchaseOrder, Long>, JpaSpecificationExecutor<PurchaseOrder> {
     long countByPoNumberStartingWith(String prefix);
 
+    java.util.Optional<PurchaseOrder> findByPoNumber(String poNumber);
+
     long countByStatus(PoStatus status);
 
     /** 미완료(진행 중) 발주 존재 여부 — 자동발주 중복 방지 */

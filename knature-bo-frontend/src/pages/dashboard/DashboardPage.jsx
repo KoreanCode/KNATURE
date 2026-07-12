@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import api from '../../api/client';
 import TopBar from '../../components/TopBar';
 
-/** 의존성 없는 SVG 라인차트 — 최근 7일 매출 */
+/** 의존성 없는 SVG 라인차트 — 카드 폭을 가득 채우도록 viewBox 확장 (여백 제거) */
 function SalesLineChart({ data }) {
   const entries = Object.entries(data); // [['6/29', 0], ...]
   if (entries.length === 0) return null;
-  const W = 700, H = 220, PAD = { top: 20, right: 20, bottom: 30, left: 70 };
+  const W = 1400, H = 300, PAD = { top: 28, right: 40, bottom: 40, left: 90 };
   const innerW = W - PAD.left - PAD.right;
   const innerH = H - PAD.top - PAD.bottom;
   const max = Math.max(...entries.map(([, v]) => v), 1);
@@ -16,31 +17,45 @@ function SalesLineChart({ data }) {
   const fmt = (n) => n >= 10000 ? `${Math.round(n / 10000).toLocaleString()}만` : n.toLocaleString();
 
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} style={{ width: '100%', maxWidth: 900 }} role="img" aria-label="최근 7일 매출 라인차트">
+    <svg viewBox={`0 0 ${W} ${H}`} style={{ width: '100%', display: 'block' }} role="img" aria-label="매출 라인차트">
       {[0, 0.5, 1].map((r) => (
         <g key={r}>
           <line x1={PAD.left} y1={y(max * r)} x2={W - PAD.right} y2={y(max * r)} stroke="#e9ecef" strokeWidth="1" />
-          <text x={PAD.left - 8} y={y(max * r) + 4} textAnchor="end" fontSize="11" fill="#868e96">{fmt(max * r)}</text>
+          <text x={PAD.left - 10} y={y(max * r) + 5} textAnchor="end" fontSize="14" fill="#868e96">{fmt(max * r)}</text>
         </g>
       ))}
       <polyline points={points} fill="none" stroke="#0d6efd" strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round" />
       {entries.map(([label, v], i) => (
         <g key={label}>
-          <circle cx={x(i)} cy={y(v)} r="4" fill="#0d6efd" />
-          <text x={x(i)} y={H - 8} textAnchor="middle" fontSize="11" fill="#495057">{label}</text>
-          {v > 0 && <text x={x(i)} y={y(v) - 10} textAnchor="middle" fontSize="10" fill="#0d6efd">{fmt(v)}</text>}
+          <circle cx={x(i)} cy={y(v)} r="4.5" fill="#0d6efd" />
+          <text x={x(i)} y={H - 12} textAnchor="middle" fontSize="14" fill="#495057">{label}</text>
+          {v > 0 && <text x={x(i)} y={y(v) - 12} textAnchor="middle" fontSize="13" fill="#0d6efd">{fmt(v)}</text>}
         </g>
       ))}
     </svg>
   );
 }
 
+const PERIODS = [['daily', '일간'], ['weekly', '주간'], ['monthly', '월간']];
+
 export default function DashboardPage() {
+  const navigate = useNavigate();
   const [data, setData] = useState(null);
+  const [period, setPeriod] = useState('daily');
+  const [sales, setSales] = useState(null);
 
   useEffect(() => {
-    api.get('/dashboard').then((res) => setData(res.data));
+    api.get('/dashboard')
+      .then((res) => setData(res.data))
+      .catch((err) => {
+        // 공장관리자 등 대시보드 권한이 없으면 발주 관리로
+        if (err.response?.status === 403) navigate('/purchase-orders', { replace: true });
+      });
   }, []);
+
+  useEffect(() => {
+    api.get('/dashboard/sales', { params: { period } }).then((res) => setSales(res.data)).catch(() => {});
+  }, [period]);
 
   if (!data) return <div className="p-4">로딩중...</div>;
 
@@ -155,16 +170,32 @@ export default function DashboardPage() {
       </div>
 
       <div className="content-card">
-        <h6><i className="bi bi-graph-up text-success"></i> 최근 7일 매출</h6>
-        <SalesLineChart data={data.weeklySales} />
-        <table className="table table-sm mt-3">
-          <thead><tr><th>날짜</th><th className="text-end">매출</th></tr></thead>
-          <tbody>
-            {Object.entries(data.weeklySales).map(([k, v]) => (
-              <tr key={k}><td>{k}</td><td className="text-end">{fmt(v)}원</td></tr>
+        <div className="d-flex justify-content-between align-items-center mb-2">
+          <h6 className="mb-0"><i className="bi bi-graph-up text-success"></i> 매출 현황</h6>
+          <div className="btn-group btn-group-sm">
+            {PERIODS.map(([k, label]) => (
+              <button key={k} className={`btn ${period === k ? 'btn-primary' : 'btn-outline-primary'}`}
+                onClick={() => setPeriod(k)}>{label}</button>
             ))}
-          </tbody>
-        </table>
+          </div>
+        </div>
+        {sales && (
+          <>
+            <SalesLineChart data={sales.series} />
+            <div className="d-flex justify-content-end gap-4 small text-muted mt-2">
+              <span>합계 <b className="text-dark">{fmt(sales.total)}원</b></span>
+              <span>{period === 'daily' ? '일' : period === 'weekly' ? '주' : '월'} 평균 <b className="text-dark">{fmt(sales.average)}원</b></span>
+            </div>
+            <table className="table table-sm mt-3">
+              <thead><tr><th>{period === 'daily' ? '날짜' : period === 'weekly' ? '주' : '월'}</th><th className="text-end">매출</th></tr></thead>
+              <tbody>
+                {Object.entries(sales.series).map(([k, v]) => (
+                  <tr key={k}><td>{k}</td><td className="text-end">{fmt(v)}원</td></tr>
+                ))}
+              </tbody>
+            </table>
+          </>
+        )}
       </div>
     </>
   );

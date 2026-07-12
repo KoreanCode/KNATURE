@@ -11,8 +11,9 @@ export default function LoginPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await api.post('/auth/login', { username, password });
-      navigate('/dashboard');
+      const res = await api.post('/auth/login', { username, password });
+      // 공장관리자는 대시보드 권한이 없으므로 발주 관리로 진입
+      navigate(res.data.role === 'FACTORY_ADMIN' ? '/purchase-orders' : '/dashboard');
     } catch {
       setError('아이디 또는 비밀번호가 올바르지 않습니다.');
     }

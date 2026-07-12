@@ -3,7 +3,7 @@ import api from '../../api/client';
 import TopBar from '../../components/TopBar';
 
 const fmt = (n) => Number(n).toLocaleString();
-const EMPTY = { name: '', bizNumber: '', address: '', phone: '', managerName: '', leadTimeDays: 7 };
+const EMPTY = { name: '', bizNumber: '', address: '', phone: '', managerName: '', leadTimeDays: 7, region: '' };
 
 export default function FactoryPage() {
   const [factories, setFactories] = useState([]);
@@ -58,7 +58,7 @@ export default function FactoryPage() {
         </div>
         <table className="table table-hover">
           <thead className="table-light">
-            <tr><th>공장명</th><th>사업자번호</th><th>연락처</th><th>담당자</th><th className="text-center">리드타임</th><th className="text-center">상태</th><th className="text-center" style={{ width: 260 }}>관리</th></tr>
+            <tr><th>공장명</th><th>사업자번호</th><th>연락처</th><th>담당자</th><th>담당지역</th><th className="text-center">리드타임</th><th className="text-center">상태</th><th className="text-center" style={{ width: 260 }}>관리</th></tr>
           </thead>
           <tbody>
             {factories.map((f) => (
@@ -67,6 +67,7 @@ export default function FactoryPage() {
                 <td>{f.bizNumber || '-'}</td>
                 <td>{f.phone || '-'}</td>
                 <td>{f.managerName || '-'}</td>
+                <td className="small">{f.region || '-'}</td>
                 <td className="text-center">{f.leadTimeDays}일</td>
                 <td className="text-center">{f.active ? <span className="badge bg-success">거래중</span> : <span className="badge bg-secondary">중지</span>}</td>
                 <td className="text-center">
@@ -94,6 +95,8 @@ export default function FactoryPage() {
                 <input className="form-control form-control-sm mb-2" placeholder="주소" value={form.address || ''} onChange={set('address')} />
                 <input className="form-control form-control-sm mb-2" placeholder="연락처" value={form.phone || ''} onChange={set('phone')} />
                 <input className="form-control form-control-sm mb-2" placeholder="담당자명" value={form.managerName || ''} onChange={set('managerName')} />
+                <label className="form-label small mb-0">담당 지역 <small className="text-muted">(쉼표 구분 — 주문 배송지가 이 지역이면 자동발주 시 이 공장 우선)</small></label>
+                <input className="form-control form-control-sm mb-2" placeholder="예: 서울,경기,인천" value={form.region || ''} onChange={set('region')} />
                 <label className="form-label small mb-0">기본 리드타임 (일)</label>
                 <input type="number" className="form-control form-control-sm" value={form.leadTimeDays} onChange={set('leadTimeDays')} />
               </div>

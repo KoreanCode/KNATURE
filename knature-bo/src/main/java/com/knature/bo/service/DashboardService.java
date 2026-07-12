@@ -26,6 +26,49 @@ public class DashboardService {
     private final OrderStatusHistoryRepository statusHistoryRepository;
     private final PurchaseOrderRepository purchaseOrderRepository;
 
+    /**
+     * 기간별 매출 시리즈 — daily: 최근 14일 / weekly: 최근 8주 / monthly: 최근 6개월
+     * 반환: {series: {라벨: 매출}, total, average}
+     */
+    public Map<String, Object> getSalesSeries(String period) {
+        Map<String, Long> series = new LinkedHashMap<>();
+        LocalDate today = LocalDate.now();
+        switch (period) {
+            case "weekly" -> {
+                for (int i = 7; i >= 0; i--) {
+                    LocalDate weekStart = today.minusWeeks(i).with(java.time.DayOfWeek.MONDAY);
+                    LocalDateTime start = weekStart.atStartOfDay();
+                    LocalDateTime end = weekStart.plusWeeks(1).atStartOfDay();
+                    series.put(weekStart.getMonthValue() + "/" + weekStart.getDayOfMonth() + "주",
+                            orderRepository.sumPaymentAmountBetween(start, end));
+                }
+            }
+            case "monthly" -> {
+                for (int i = 5; i >= 0; i--) {
+                    LocalDate monthStart = today.minusMonths(i).withDayOfMonth(1);
+                    LocalDateTime start = monthStart.atStartOfDay();
+                    LocalDateTime end = monthStart.plusMonths(1).atStartOfDay();
+                    series.put(monthStart.getYear() % 100 + "." + monthStart.getMonthValue() + "월",
+                            orderRepository.sumPaymentAmountBetween(start, end));
+                }
+            }
+            default -> { // daily
+                for (int i = 13; i >= 0; i--) {
+                    LocalDate date = today.minusDays(i);
+                    LocalDateTime start = date.atStartOfDay();
+                    series.put(date.getMonthValue() + "/" + date.getDayOfMonth(),
+                            orderRepository.sumPaymentAmountBetween(start, start.plusDays(1)));
+                }
+            }
+        }
+        long total = series.values().stream().mapToLong(Long::longValue).sum();
+        Map<String, Object> result = new LinkedHashMap<>();
+        result.put("series", series);
+        result.put("total", total);
+        result.put("average", series.isEmpty() ? 0 : total / series.size());
+        return result;
+    }
+
     /** 발주 미처리 현황 — 승인대기 건수 + 납기 임박(D-3)/초과 건수 (2차 SCM) */
     public Map<String, Long> getPoAlerts() {
         LocalDate today = LocalDate.now();

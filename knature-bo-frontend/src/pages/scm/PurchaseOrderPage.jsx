@@ -119,7 +119,10 @@ export default function PurchaseOrderPage() {
           <tbody>
             {orders.map((po) => (
               <tr key={po.id}>
-                <td className="small">{po.poNumber}{po.createdBy === 'auto' && <span className="badge bg-brand-light text-dark border ms-1">자동</span>}</td>
+                <td className="small">
+                  {po.poNumber}{po.createdBy === 'auto' && <span className="badge bg-warning text-dark ms-1">자동</span>}
+                  {po.memo && <div className="text-muted" style={{ fontSize: 11 }}>{po.memo}</div>}
+                </td>
                 <td>{po.factory?.name}</td>
                 <td className="small">{po.product?.name}</td>
                 <td className="text-end">{fmt(po.quantity)}개{po.receivedQuantity > 0 && <div className="small text-muted">입고 {po.receivedQuantity}</div>}</td>

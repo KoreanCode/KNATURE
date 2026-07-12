@@ -6,6 +6,7 @@ import com.knature.common.domain.scm.*;
 import com.knature.common.domain.scm.PurchaseOrder.PoStatus;
 import com.knature.common.domain.stock.StockHistory;
 import com.knature.common.repository.*;
+import com.knature.common.service.AutoOrderService;
 import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -37,6 +38,7 @@ public class PurchaseOrderService {
     private final StockLotRepository stockLotRepository;
     private final StockHistoryRepository stockHistoryRepository;
     private final AdminRepository adminRepository;
+    private final AutoOrderService autoOrderService;
 
     /** 목록 — 공장관리자는 자기 공장 발주만 (factoryScope) */
     public List<PurchaseOrder> getOrders(PoStatus status, Long factoryId, Long factoryScope) {
@@ -91,34 +93,10 @@ public class PurchaseOrderService {
                 .build());
     }
 
-    /** 자동 발주 — 안전재고 이하 + 매핑 존재 + 진행 중 발주 없음 → MOQ 이상으로 생성. 생성 건수 반환 */
+    /** 자동 발주 — 공통 AutoOrderService 위임 (지역 매칭 포함, FO 주문 트리거와 동일 로직) */
     @Transactional
     public int runAutoOrder() {
-        int created = 0;
-        for (Product product : productRepository.findAll()) {
-            int stock = product.getStockQuantity() == null ? 0 : product.getStockQuantity();
-            int safety = product.getSafetyStock() == null ? 0 : product.getSafetyStock();
-            if (safety <= 0 || stock > safety) continue;
-            if (!poRepository.findByProductIdAndStatusIn(product.getId(), OPEN_STATUSES).isEmpty()) continue;
-            FactoryProduct mapping = factoryProductRepository
-                    .findFirstByProductIdOrderByUnitCostAsc(product.getId()).orElse(null);
-            if (mapping == null) continue;
-            int shortage = safety * 2 - stock; // 안전재고의 2배까지 채움
-            int quantity = Math.max(shortage, mapping.getMoq());
-            int lead = mapping.getLeadTimeDays() != null ? mapping.getLeadTimeDays()
-                    : mapping.getFactory().getLeadTimeDays();
-            poRepository.save(PurchaseOrder.builder()
-                    .poNumber(generatePoNumber())
-                    .factory(mapping.getFactory()).product(product)
-                    .quantity(quantity).unitCost(mapping.getUnitCost())
-                    .dueDate(LocalDate.now().plusDays(lead))
-                    .memo("[자동발주] 재고 " + stock + " / 안전재고 " + safety)
-                    .createdBy("auto")
-                    .build());
-            created++;
-            log.info("자동발주 생성: {} {}개 → {}", product.getName(), quantity, mapping.getFactory().getName());
-        }
-        return created;
+        return autoOrderService.runFullScan();
     }
 
     /**

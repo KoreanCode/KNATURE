@@ -7,6 +7,7 @@ import com.knature.common.domain.order.*;
 import com.knature.common.domain.product.Product;
 import com.knature.common.domain.product.ProductOption;
 import com.knature.common.repository.*;
+import com.knature.common.service.AutoOrderService;
 import com.knature.common.service.CouponService;
 import com.knature.common.service.MileageService;
 import lombok.RequiredArgsConstructor;
@@ -35,6 +36,7 @@ public class FoOrderService {
     private final MemberCouponRepository memberCouponRepository;
     private final MileageService mileageService;
     private final CouponService couponService;
+    private final AutoOrderService autoOrderService;
 
     /** 주문 항목 요청 (productId, optionId nullable, quantity) */
     public record OrderItemRequest(Long productId, Long optionId, int quantity) {}
@@ -155,6 +157,12 @@ public class FoOrderService {
         }
         Order saved = orderRepository.save(order);
         log.info("FO 주문 생성: {} ({}원, {})", saved.getOrderNumber(), saved.getPaymentAmount(), paymentMethod);
+
+        // 6) 주문으로 재고가 안전재고 이하로 떨어진 상품 → 배송지 지역 담당 공장에 자동 발주 (2차 SCM)
+        for (Line line : lines) {
+            autoOrderService.createIfNeeded(line.product(), address,
+                    "주문 접수 트리거 (" + saved.getOrderNumber() + ")");
+        }
         return saved;
     }
 
