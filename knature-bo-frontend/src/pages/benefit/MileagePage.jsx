@@ -33,7 +33,7 @@ export default function MileagePage() {
       <TopBar title="적립금 관리" />
       <div className="content-card mb-3">
         <form className="d-flex gap-2" onSubmit={search}>
-          <input className="form-control form-control-sm" style={{ width: 220 }} placeholder="회원 이름/아이디 검색"
+          <input className="form-control form-control-sm" style={{ width: 220 }} placeholder="회원 이름/아이디 검색" maxLength={50}
             value={keyword} onChange={(e) => setKeyword(e.target.value)} />
           <button className="btn btn-sm btn-outline-primary">검색</button>
         </form>
@@ -58,9 +58,9 @@ export default function MileagePage() {
           <h6 className="mb-3">{selected.name} ({selected.username}) — 보유 <span className="text-primary fw-bold">{fmt(selected.balance)}P</span></h6>
 
           <div className="d-flex gap-2 align-items-center mb-3 p-2 bg-light rounded">
-            <input type="number" className="form-control form-control-sm" style={{ width: 140 }} placeholder="금액"
+            <input type="number" min="0" max={99999999} className="form-control form-control-sm" style={{ width: 140 }} placeholder="금액"
               value={adjust.amount} onChange={(e) => setAdjust({ ...adjust, amount: e.target.value })} />
-            <input className="form-control form-control-sm" style={{ width: 260 }} placeholder="사유 (필수)"
+            <input className="form-control form-control-sm" style={{ width: 260 }} placeholder="사유 (필수)" maxLength={200}
               value={adjust.reason} onChange={(e) => setAdjust({ ...adjust, reason: e.target.value })} />
             <button className="btn btn-sm btn-primary" onClick={() => submitAdjust(1)}>지급</button>
             <button className="btn btn-sm btn-outline-danger" onClick={() => submitAdjust(-1)}>차감</button>

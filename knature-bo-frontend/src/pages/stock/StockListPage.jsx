@@ -42,7 +42,7 @@ export default function StockListPage() {
       <TopBar title="재고 관리" />
       <div className="content-card">
         <form className="d-flex gap-2 mb-3" onSubmit={handleSearch}>
-          <input type="text" className="form-control form-control-sm" placeholder="상품명 검색" value={keyword} onChange={(e) => setKeyword(e.target.value)} style={{ width: 200 }} />
+          <input type="text" className="form-control form-control-sm" placeholder="상품명 검색" value={keyword} maxLength={50} onChange={(e) => setKeyword(e.target.value)} style={{ width: 200 }} />
           <button className="btn btn-sm btn-outline-primary">검색</button>
         </form>
 
@@ -110,7 +110,7 @@ export default function StockListPage() {
                 </div>
                 <div>
                   <label className="form-label">조정 사유 *</label>
-                  <input type="text" className="form-control" placeholder="예: 실사 반영, 입고, 파손 폐기" value={adjusting.reason}
+                  <input type="text" className="form-control" placeholder="예: 실사 반영, 입고, 파손 폐기" maxLength={200} value={adjusting.reason}
                     onChange={(e) => setAdjusting({ ...adjusting, reason: e.target.value })} />
                 </div>
               </div>

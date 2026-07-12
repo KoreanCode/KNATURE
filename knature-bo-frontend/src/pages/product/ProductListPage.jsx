@@ -53,7 +53,7 @@ export default function ProductListPage() {
       <div className="content-card">
         <div className="d-flex justify-content-between mb-3 flex-wrap gap-2">
           <form className="d-flex gap-2 flex-wrap" onSubmit={handleSearch}>
-            <input type="text" className="form-control form-control-sm" placeholder="상품명 검색" value={keyword} onChange={(e) => setKeyword(e.target.value)} style={{ width: 180 }} />
+            <input type="text" className="form-control form-control-sm" placeholder="상품명 검색" value={keyword} maxLength={50} onChange={(e) => setKeyword(e.target.value)} style={{ width: 180 }} />
             <select className="form-select form-select-sm" style={{ width: 170 }} value={categoryId} onChange={(e) => setSearchParams({ keyword, status, categoryId: e.target.value, page: 0 })}>
               <option value="">전체 분류</option>
               {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}

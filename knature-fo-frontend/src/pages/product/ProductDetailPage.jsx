@@ -135,7 +135,7 @@ export default function ProductDetailPage() {
             <span className="small">수량</span>
             <div className="input-group input-group-sm" style={{ width: 130 }}>
               <button className="btn btn-outline-secondary" onClick={() => setQty(quantity - 1)}>-</button>
-              <input type="number" className="form-control text-center" value={quantity} min="1"
+              <input type="number" className="form-control text-center" value={quantity} min="1" max="999"
                 onChange={(e) => setQty(parseInt(e.target.value) || 1)} />
               <button className="btn btn-outline-secondary" onClick={() => setQty(quantity + 1)}>+</button>
             </div>
@@ -190,7 +190,7 @@ export default function ProductDetailPage() {
                 ))}
                 <span className="small text-muted ms-2">{reviewForm.rating}점</span>
               </div>
-              <textarea className="form-control form-control-sm mb-2" rows={3} placeholder="사용 후기를 남겨주세요"
+              <textarea className="form-control form-control-sm mb-2" rows={3} maxLength={2000} placeholder="사용 후기를 남겨주세요"
                 value={reviewForm.content} onChange={(e) => setReviewForm((p) => ({ ...p, content: e.target.value }))} />
               <button className="btn btn-sm btn-brand" onClick={submitReview}>후기 등록</button>
             </div>

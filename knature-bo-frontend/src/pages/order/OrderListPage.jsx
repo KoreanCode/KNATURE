@@ -79,7 +79,7 @@ export default function OrderListPage() {
             <input type="date" className="form-control form-control-sm" style={{ width: 150 }} value={from} onChange={(e) => setFrom(e.target.value)} />
             <span className="align-self-center">~</span>
             <input type="date" className="form-control form-control-sm" style={{ width: 150 }} value={to} onChange={(e) => setTo(e.target.value)} />
-            <input type="text" className="form-control form-control-sm" placeholder={tab === 'item' ? '주문번호/주문자/상품명' : '주문번호/주문자명'} value={keyword} onChange={(e) => setKeyword(e.target.value)} style={{ width: 200 }} />
+            <input type="text" className="form-control form-control-sm" placeholder={tab === 'item' ? '주문번호/주문자/상품명' : '주문번호/주문자명'} value={keyword} maxLength={50} onChange={(e) => setKeyword(e.target.value)} style={{ width: 200 }} />
             <select className="form-select form-select-sm" style={{ width: 140 }} value={status} onChange={(e) => setParams({ status: e.target.value })}>
               <option value="">전체 상태</option>
               {Object.entries(STATUS_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}

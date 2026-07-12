@@ -135,8 +135,8 @@ export default function OrderFormPage() {
           )}
         </div>
         <div className="row g-2">
-          <div className="col-md-6"><input className="form-control form-control-sm" placeholder="수령인 *" value={form.receiverName} onChange={set('receiverName')} /></div>
-          <div className="col-md-6"><input className="form-control form-control-sm" placeholder="연락처 *" value={form.receiverPhone} onChange={set('receiverPhone')} /></div>
+          <div className="col-md-6"><input className="form-control form-control-sm" placeholder="수령인 *" maxLength={50} value={form.receiverName} onChange={set('receiverName')} /></div>
+          <div className="col-md-6"><input className="form-control form-control-sm" placeholder="연락처 *" maxLength={20} value={form.receiverPhone} onChange={set('receiverPhone')} /></div>
           <div className="col-md-3">
             <div className="d-flex gap-1">
               <input className="form-control form-control-sm" placeholder="우편번호" value={form.zipcode} readOnly onChange={set('zipcode')} />
@@ -145,8 +145,8 @@ export default function OrderFormPage() {
             </div>
           </div>
           <div className="col-md-9"><input className="form-control form-control-sm" placeholder="주소 *" value={form.address} readOnly onChange={set('address')} /></div>
-          <div className="col-12"><input className="form-control form-control-sm" placeholder="상세주소" value={form.addressDetail} onChange={set('addressDetail')} /></div>
-          <div className="col-12"><input className="form-control form-control-sm" placeholder="배송메모 (예: 문 앞에 놓아주세요)" value={form.deliveryMemo} onChange={set('deliveryMemo')} /></div>
+          <div className="col-12"><input className="form-control form-control-sm" placeholder="상세주소" maxLength={100} value={form.addressDetail} onChange={set('addressDetail')} /></div>
+          <div className="col-12"><input className="form-control form-control-sm" placeholder="배송메모 (예: 문 앞에 놓아주세요)" maxLength={200} value={form.deliveryMemo} onChange={set('deliveryMemo')} /></div>
         </div>
       </div>
 
@@ -184,7 +184,7 @@ export default function OrderFormPage() {
           <div className="col-md-6">
             <label className="form-label small mb-0">적립금 (보유 {fmt(mileageBalance)}P)</label>
             <div className="d-flex gap-1">
-              <input type="number" min="0" className="form-control form-control-sm" value={useMileage}
+              <input type="number" min="0" max="99999999" className="form-control form-control-sm" value={useMileage}
                 onChange={(e) => setMileageInput(e.target.value)} />
               <button type="button" className="btn btn-sm btn-outline-brand flex-shrink-0"
                 onClick={() => setMileageInput(mileageBalance)}>전액 사용</button>

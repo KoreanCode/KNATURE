@@ -21,6 +21,12 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
     }
 
+    @ExceptionHandler(org.springframework.dao.DataIntegrityViolationException.class)
+    public ResponseEntity<?> handleDataIntegrity(org.springframework.dao.DataIntegrityViolationException e) {
+        log.warn("데이터 제약 위반: {}", e.getMostSpecificCause().getMessage());
+        return ResponseEntity.badRequest().body(Map.of("message", "입력값이 허용 길이를 초과했거나 중복됩니다. 입력 내용을 확인해주세요."));
+    }
+
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ResponseEntity<?> handleTypeMismatch(MethodArgumentTypeMismatchException e) {
         return ResponseEntity.badRequest().body(Map.of("message", "잘못된 요청 경로 또는 파라미터입니다."));

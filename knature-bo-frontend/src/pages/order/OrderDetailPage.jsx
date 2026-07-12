@@ -121,7 +121,7 @@ export default function OrderDetailPage() {
             <option value="">택배사 선택</option>
             {['CJ대한통운', '한진택배', '롯데택배', '우체국택배', '로젠택배'].map((c) => <option key={c} value={c}>{c}</option>)}
           </select>
-          <input type="text" className="form-control form-control-sm" style={{ width: 200 }} placeholder="송장번호"
+          <input type="text" className="form-control form-control-sm" style={{ width: 200 }} placeholder="송장번호" maxLength={30}
             value={tracking} onChange={(e) => setTracking(e.target.value)} />
           <button className="btn btn-sm btn-primary" onClick={saveShipping}>송장 등록 (배송중 처리)</button>
           {order.trackingNumber && <small className="text-muted">현재: {order.courierCompany} {order.trackingNumber}</small>}
@@ -135,7 +135,7 @@ export default function OrderDetailPage() {
         </div>
         <div className="d-flex gap-2 align-items-start">
           <label className="mb-0" style={{ width: 90, paddingTop: 6 }}>관리자 메모</label>
-          <textarea className="form-control form-control-sm" rows={3} style={{ maxWidth: 500 }} value={memo} onChange={(e) => setMemo(e.target.value)} />
+          <textarea className="form-control form-control-sm" rows={3} style={{ maxWidth: 500 }} value={memo} maxLength={2000} onChange={(e) => setMemo(e.target.value)} />
           <button className="btn btn-sm btn-outline-primary" onClick={saveMemo}>메모 저장</button>
         </div>
       </div>

@@ -71,19 +71,19 @@ export default function JoinPage() {
 
       {step === 2 && (
         <form onSubmit={submit}>
-          <input className="form-control mb-2" placeholder="아이디 (4~20자) *" value={form.username} onChange={set('username')} required />
-          <input type="password" className="form-control mb-2" placeholder="비밀번호 (8자 이상) *" value={form.password} onChange={set('password')} required />
-          <input type="password" className="form-control mb-2" placeholder="비밀번호 확인 *" value={form.passwordConfirm} onChange={set('passwordConfirm')} required />
-          <input className="form-control mb-2" placeholder="이름 *" value={form.name} onChange={set('name')} required />
-          <input type="email" className="form-control mb-2" placeholder="이메일 *" value={form.email} onChange={set('email')} required />
-          <input className="form-control mb-2" placeholder="휴대폰 (예: 010-1234-5678)" value={form.phone} onChange={set('phone')} />
+          <input className="form-control mb-2" placeholder="아이디 (4~20자) *" maxLength={20} value={form.username} onChange={set('username')} required />
+          <input type="password" className="form-control mb-2" placeholder="비밀번호 (8자 이상) *" maxLength={64} value={form.password} onChange={set('password')} required />
+          <input type="password" className="form-control mb-2" placeholder="비밀번호 확인 *" maxLength={64} value={form.passwordConfirm} onChange={set('passwordConfirm')} required />
+          <input className="form-control mb-2" placeholder="이름 *" maxLength={50} value={form.name} onChange={set('name')} required />
+          <input type="email" className="form-control mb-2" placeholder="이메일 *" maxLength={100} value={form.email} onChange={set('email')} required />
+          <input className="form-control mb-2" placeholder="휴대폰 (예: 010-1234-5678)" maxLength={20} value={form.phone} onChange={set('phone')} />
           <div className="d-flex gap-2 mb-2">
             <input className="form-control" style={{ maxWidth: 140 }} placeholder="우편번호" value={form.zipcode} readOnly onChange={set('zipcode')} />
             <input className="form-control" placeholder="주소" value={form.address} readOnly onChange={set('address')} />
             <button type="button" className="btn btn-outline-brand flex-shrink-0"
               onClick={() => openPostcode(({ zipcode, address }) => setForm((p) => ({ ...p, zipcode, address })))}>주소 검색</button>
           </div>
-          <input className="form-control mb-3" placeholder="상세주소" value={form.addressDetail} onChange={set('addressDetail')} />
+          <input className="form-control mb-3" placeholder="상세주소" maxLength={100} value={form.addressDetail} onChange={set('addressDetail')} />
           {error && <div className="alert alert-danger py-2 small">{error}</div>}
           <button className="btn btn-brand w-100 py-2">가입하기</button>
         </form>

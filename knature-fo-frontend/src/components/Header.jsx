@@ -48,7 +48,7 @@ export default function Header() {
 
         <div className="d-flex align-items-center gap-3">
           <form onSubmit={search} className="d-none d-md-flex">
-            <input className="form-control form-control-sm" style={{ width: 160 }} placeholder="상품 검색"
+            <input className="form-control form-control-sm" style={{ width: 160 }} placeholder="상품 검색" maxLength={50}
               value={keyword} onChange={(e) => setKeyword(e.target.value)} />
           </form>
 

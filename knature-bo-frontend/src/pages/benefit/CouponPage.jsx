@@ -74,9 +74,9 @@ export default function CouponPage() {
                 <button type="button" className="btn-close" onClick={() => setForm(null)} /></div>
               <div className="modal-body">
                 <label className="form-label small mb-0">쿠폰명 *</label>
-                <input className="form-control form-control-sm mb-2" value={form.name} onChange={set('name')} />
+                <input className="form-control form-control-sm mb-2" value={form.name} maxLength={100} onChange={set('name')} />
                 <label className="form-label small mb-0">코드 (자동발급용, 선택)</label>
-                <input className="form-control form-control-sm mb-2" placeholder="예: BIRTHDAY" value={form.code} onChange={set('code')} />
+                <input className="form-control form-control-sm mb-2" placeholder="예: BIRTHDAY" value={form.code} maxLength={50} onChange={set('code')} />
                 <div className="d-flex gap-2 mb-2">
                   <div className="flex-fill">
                     <label className="form-label small mb-0">할인 유형 *</label>
@@ -87,17 +87,17 @@ export default function CouponPage() {
                   </div>
                   <div className="flex-fill">
                     <label className="form-label small mb-0">{form.discountType === 'PERCENT' ? '할인율(%) *' : '할인액(원) *'}</label>
-                    <input type="number" className="form-control form-control-sm" value={form.amount} onChange={set('amount')} />
+                    <input type="number" min="0" max={form.discountType === 'PERCENT' ? 100 : 99999999} className="form-control form-control-sm" value={form.amount} onChange={set('amount')} />
                   </div>
                 </div>
                 {form.discountType === 'PERCENT' && (
                   <>
                     <label className="form-label small mb-0">최대 할인액 (원, 선택)</label>
-                    <input type="number" className="form-control form-control-sm mb-2" value={form.maxDiscount} onChange={set('maxDiscount')} />
+                    <input type="number" min="0" max={99999999} className="form-control form-control-sm mb-2" value={form.maxDiscount} onChange={set('maxDiscount')} />
                   </>
                 )}
                 <label className="form-label small mb-0">최소 주문금액 (원)</label>
-                <input type="number" className="form-control form-control-sm mb-2" value={form.minOrderAmount} onChange={set('minOrderAmount')} />
+                <input type="number" min="0" max={99999999} className="form-control form-control-sm mb-2" value={form.minOrderAmount} onChange={set('minOrderAmount')} />
                 <label className="form-label small mb-0">유효기간 (까지, 비우면 무기한)</label>
                 <input type="date" className="form-control form-control-sm" value={form.validUntil} onChange={set('validUntil')} />
               </div>
@@ -131,7 +131,7 @@ export default function CouponPage() {
                   </select>
                 )}
                 {issueFor.target === 'MEMBER' && (
-                  <input type="number" className="form-control form-control-sm" placeholder="회원 ID (고객관리에서 확인)"
+                  <input type="number" min="0" className="form-control form-control-sm" placeholder="회원 ID (고객관리에서 확인)"
                     value={issueFor.memberId} onChange={(e) => setIssueFor({ ...issueFor, memberId: e.target.value })} />
                 )}
                 <small className="text-muted d-block mt-2">이미 보유한 회원은 중복 발급되지 않습니다.</small>

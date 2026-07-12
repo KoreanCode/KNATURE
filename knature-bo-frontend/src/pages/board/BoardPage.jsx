@@ -101,8 +101,8 @@ export default function BoardPage() {
                     {FAQ_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
                   </select>
                 )}
-                <input className="form-control mb-2" placeholder={isFaq ? '질문 *' : '제목 *'} value={form.title} onChange={set('title')} />
-                <textarea className="form-control mb-2" rows={8} placeholder={isFaq ? '답변 *' : '내용 * (HTML 가능)'} value={form.content} onChange={set('content')} />
+                <input className="form-control mb-2" placeholder={isFaq ? '질문 *' : '제목 *'} value={form.title} maxLength={200} onChange={set('title')} />
+                <textarea className="form-control mb-2" rows={8} placeholder={isFaq ? '답변 *' : '내용 * (HTML 가능)'} value={form.content} maxLength={2000} onChange={set('content')} />
                 {isEvent && (
                   <div className="d-flex gap-2 mb-2">
                     <input type="date" className="form-control form-control-sm" value={form.startDate} onChange={set('startDate')} />

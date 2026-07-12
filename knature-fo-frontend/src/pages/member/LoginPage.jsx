@@ -24,9 +24,9 @@ export default function LoginPage() {
     <div className="container py-5" style={{ maxWidth: 420 }}>
       <h4 className="text-center fw-bold mb-4">로그인</h4>
       <form onSubmit={submit}>
-        <input className="form-control mb-2" placeholder="아이디" value={form.username}
+        <input className="form-control mb-2" placeholder="아이디" maxLength={50} value={form.username}
           onChange={(e) => setForm((prev) => ({ ...prev, username: e.target.value }))} required />
-        <input type="password" className="form-control mb-3" placeholder="비밀번호" value={form.password}
+        <input type="password" className="form-control mb-3" placeholder="비밀번호" maxLength={64} value={form.password}
           onChange={(e) => setForm((prev) => ({ ...prev, password: e.target.value }))} required />
         {error && <div className="alert alert-danger py-2 small">{error}</div>}
         <button className="btn btn-brand w-100 py-2">로그인</button>

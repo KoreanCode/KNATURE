@@ -31,9 +31,9 @@ export default function MyInquiryPage() {
             onChange={(e) => setForm((p) => ({ ...p, category: e.target.value }))}>
             {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
           </select>
-          <input className="form-control form-control-sm mb-2" placeholder="제목"
+          <input className="form-control form-control-sm mb-2" placeholder="제목" maxLength={200}
             value={form.title} onChange={(e) => setForm((p) => ({ ...p, title: e.target.value }))} />
-          <textarea className="form-control form-control-sm mb-2" rows={4} placeholder="문의 내용을 입력해주세요"
+          <textarea className="form-control form-control-sm mb-2" rows={4} maxLength={2000} placeholder="문의 내용을 입력해주세요"
             value={form.content} onChange={(e) => setForm((p) => ({ ...p, content: e.target.value }))} />
           <div className="d-flex gap-2">
             <button className="btn btn-sm btn-brand" onClick={submit}>접수하기</button>

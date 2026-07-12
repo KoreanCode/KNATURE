@@ -57,10 +57,10 @@ export default function MyAddressPage() {
       {form && (
         <div className="border rounded p-3 mt-3" style={{ maxWidth: 520 }}>
           <b className="d-block mb-2">{form.id ? '배송지 수정' : '배송지 추가'}</b>
-          <input className="form-control form-control-sm mb-1" placeholder="배송지명 (예: 집, 회사)" value={form.alias} onChange={set('alias')} />
+          <input className="form-control form-control-sm mb-1" placeholder="배송지명 (예: 집, 회사)" maxLength={50} value={form.alias} onChange={set('alias')} />
           <div className="d-flex gap-1 mb-1">
-            <input className="form-control form-control-sm" placeholder="수령인 *" value={form.receiverName} onChange={set('receiverName')} />
-            <input className="form-control form-control-sm" placeholder="연락처 *" value={form.receiverPhone} onChange={set('receiverPhone')} />
+            <input className="form-control form-control-sm" placeholder="수령인 *" maxLength={50} value={form.receiverName} onChange={set('receiverName')} />
+            <input className="form-control form-control-sm" placeholder="연락처 *" maxLength={20} value={form.receiverPhone} onChange={set('receiverPhone')} />
           </div>
           <div className="d-flex gap-1 mb-1">
             <input className="form-control form-control-sm" style={{ maxWidth: 120 }} placeholder="우편번호 *" value={form.zipcode} readOnly onChange={set('zipcode')} />
@@ -68,7 +68,7 @@ export default function MyAddressPage() {
             <button type="button" className="btn btn-sm btn-outline-brand flex-shrink-0"
               onClick={() => openPostcode(({ zipcode, address }) => setForm((p) => ({ ...p, zipcode, address })))}>주소 검색</button>
           </div>
-          <input className="form-control form-control-sm mb-2" placeholder="상세주소" value={form.addressDetail || ''} onChange={set('addressDetail')} />
+          <input className="form-control form-control-sm mb-2" placeholder="상세주소" maxLength={100} value={form.addressDetail || ''} onChange={set('addressDetail')} />
           <div className="form-check mb-2">
             <input type="checkbox" className="form-check-input" id="isDefault" checked={!!form.isDefault}
               onChange={(e) => setForm((p) => ({ ...p, isDefault: e.target.checked }))} />

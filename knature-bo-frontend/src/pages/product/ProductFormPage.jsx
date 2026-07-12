@@ -79,11 +79,11 @@ export default function ProductFormPage() {
           <div className="row mb-3">
             <div className="col-md-8">
               <label className="form-label fw-bold">상품명 *</label>
-              <input type="text" className="form-control" value={form.name} onChange={set('name')} required />
+              <input type="text" className="form-control" value={form.name} maxLength={100} onChange={set('name')} required />
             </div>
             <div className="col-md-4">
               <label className="form-label fw-bold">상품코드</label>
-              <input type="text" className="form-control" value={form.code} onChange={set('code')} />
+              <input type="text" className="form-control" value={form.code} maxLength={100} onChange={set('code')} />
             </div>
           </div>
           <div className="row mb-3">
@@ -96,11 +96,11 @@ export default function ProductFormPage() {
             </div>
             <div className="col-md-4">
               <label className="form-label fw-bold">판매가 *</label>
-              <input type="number" className="form-control" value={form.price} onChange={set('price')} required />
+              <input type="number" min="0" max={99999999} className="form-control" value={form.price} onChange={set('price')} required />
             </div>
             <div className="col-md-4">
               <label className="form-label fw-bold">할인가</label>
-              <input type="number" className="form-control" value={form.salePrice} onChange={set('salePrice')} />
+              <input type="number" min="0" max={99999999} className="form-control" value={form.salePrice} onChange={set('salePrice')} />
             </div>
           </div>
 
@@ -132,8 +132,8 @@ export default function ProductFormPage() {
               <tbody>
                 {options.map((o, i) => (
                   <tr key={i}>
-                    <td><input type="text" className="form-control form-control-sm" placeholder="예: 300ml" value={o.name} onChange={setOption(i, 'name')} required /></td>
-                    <td><input type="number" className="form-control form-control-sm" value={o.additionalPrice} onChange={setOption(i, 'additionalPrice')} /></td>
+                    <td><input type="text" className="form-control form-control-sm" placeholder="예: 300ml" value={o.name} maxLength={100} onChange={setOption(i, 'name')} required /></td>
+                    <td><input type="number" min="0" max={99999999} className="form-control form-control-sm" value={o.additionalPrice} onChange={setOption(i, 'additionalPrice')} /></td>
                     <td><input type="number" min="0" className="form-control form-control-sm" value={o.stockQuantity} onChange={setOption(i, 'stockQuantity')} /></td>
                     <td><button type="button" className="btn btn-sm btn-outline-danger" onClick={() => removeOption(i)}>삭제</button></td>
                   </tr>
@@ -146,11 +146,11 @@ export default function ProductFormPage() {
 
           <div className="mb-3">
             <label className="form-label fw-bold">상품 설명</label>
-            <textarea className="form-control" rows={3} value={form.description} onChange={set('description')} />
+            <textarea className="form-control" rows={3} value={form.description} maxLength={2000} onChange={set('description')} />
           </div>
           <div className="mb-3">
             <label className="form-label fw-bold">상세 내용 <small className="text-muted">(HTML 가능, FO 상세페이지 연동)</small></label>
-            <textarea className="form-control" rows={8} value={form.detailContent} onChange={set('detailContent')} />
+            <textarea className="form-control" rows={8} value={form.detailContent} maxLength={2000} onChange={set('detailContent')} />
           </div>
           <div className="row mb-3">
             <div className="col-md-4">

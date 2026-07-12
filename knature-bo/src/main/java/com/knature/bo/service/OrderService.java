@@ -178,6 +178,12 @@ public class OrderService {
         if (courierCompany == null || courierCompany.isBlank() || trackingNumber == null || trackingNumber.isBlank()) {
             throw new IllegalArgumentException("택배사와 송장번호를 모두 입력해주세요.");
         }
+        if (trackingNumber.length() > 30) {
+            throw new IllegalArgumentException("송장번호는 30자 이내로 입력해주세요.");
+        }
+        if (!trackingNumber.matches("[0-9-]+")) {
+            throw new IllegalArgumentException("송장번호는 숫자(하이픈 허용)만 입력할 수 있습니다.");
+        }
         Order order = getOrder(id);
         order.setCourierCompany(courierCompany);
         order.setTrackingNumber(trackingNumber);
@@ -201,6 +207,11 @@ public class OrderService {
                 errors.add(lineNo + "행: 주문번호/택배사/송장번호가 비어 있습니다.");
                 continue;
             }
+            String tracking = row[2].trim();
+            if (tracking.length() > 30 || !tracking.matches("[0-9-]+")) {
+                errors.add(lineNo + "행: 송장번호 형식 오류 (숫자·하이픈, 30자 이내)");
+                continue;
+            }
             var found = orderRepository.findByOrderNumber(row[0].trim());
             if (found.isEmpty()) {
                 errors.add(lineNo + "행: 주문번호 없음 (" + row[0].trim() + ")");
@@ -208,7 +219,7 @@ public class OrderService {
             }
             Order order = found.get();
             order.setCourierCompany(row[1].trim());
-            order.setTrackingNumber(row[2].trim());
+            order.setTrackingNumber(tracking);
             recordStatusChange(order, OrderStatus.SHIPPING, username);
             order.setStatus(OrderStatus.SHIPPING);
             success++;

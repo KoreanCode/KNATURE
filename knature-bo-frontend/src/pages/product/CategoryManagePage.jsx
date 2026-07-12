@@ -67,17 +67,17 @@ export default function CategoryManagePage() {
               <div className="modal-body">
                 <div className="mb-2">
                   <label className="form-label">분류명 *</label>
-                  <input type="text" className="form-control" value={form.name} placeholder="예: HYDRA CALMING LINE"
+                  <input type="text" className="form-control" value={form.name} placeholder="예: HYDRA CALMING LINE" maxLength={50}
                     onChange={(e) => setForm({ ...form, name: e.target.value })} />
                 </div>
                 <div className="mb-2">
                   <label className="form-label">슬러그 * <small className="text-muted">(URL용 영문)</small></label>
-                  <input type="text" className="form-control" value={form.slug} placeholder="예: hydra-calming-line"
+                  <input type="text" className="form-control" value={form.slug} placeholder="예: hydra-calming-line" maxLength={50}
                     onChange={(e) => setForm({ ...form, slug: e.target.value })} />
                 </div>
                 <div>
                   <label className="form-label">정렬 순서</label>
-                  <input type="number" className="form-control" value={form.sortOrder}
+                  <input type="number" min="0" className="form-control" value={form.sortOrder}
                     onChange={(e) => setForm({ ...form, sortOrder: e.target.value })} />
                 </div>
               </div>

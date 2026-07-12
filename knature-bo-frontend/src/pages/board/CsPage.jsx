@@ -108,7 +108,7 @@ export default function CsPage() {
                 <button type="button" className="btn-close" onClick={() => setAnswering(null)} /></div>
               <div className="modal-body">
                 <div className="bg-light rounded p-3 mb-3 small" style={{ whiteSpace: 'pre-wrap' }}>{answering.content}</div>
-                <textarea className="form-control" rows={5} placeholder="답변 내용을 입력해주세요"
+                <textarea className="form-control" rows={5} placeholder="답변 내용을 입력해주세요" maxLength={2000}
                   value={answering.answer} onChange={(e) => setAnswering({ ...answering, answer: e.target.value })} />
               </div>
               <div className="modal-footer">

@@ -167,12 +167,12 @@ export default function PurchaseOrderPage() {
                   <option value="">상품 선택 *</option>
                   {products.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
                 </select>
-                <input type="number" className="form-control form-control-sm mb-2" placeholder="발주 수량 *"
+                <input type="number" min="0" max={999999} className="form-control form-control-sm mb-2" placeholder="발주 수량 *"
                   value={form.quantity} onChange={(e) => setForm({ ...form, quantity: e.target.value })} />
                 <label className="form-label small mb-0">납기 요청일 (비우면 리드타임 자동 계산)</label>
                 <input type="date" className="form-control form-control-sm mb-2" value={form.dueDate}
                   onChange={(e) => setForm({ ...form, dueDate: e.target.value })} />
-                <input className="form-control form-control-sm" placeholder="비고"
+                <input className="form-control form-control-sm" placeholder="비고" maxLength={200}
                   value={form.memo} onChange={(e) => setForm({ ...form, memo: e.target.value })} />
               </div>
               <div className="modal-footer">
@@ -194,20 +194,20 @@ export default function PurchaseOrderPage() {
                 <p className="small text-muted">{receiving.po.product?.name} · 발주 {receiving.po.quantity}개 (기입고 {receiving.po.receivedQuantity}개)</p>
                 <div className="row g-2 mb-2">
                   <div className="col-4"><label className="form-label small mb-0">입고 수량 *</label>
-                    <input type="number" className="form-control form-control-sm" value={receiving.receivedQuantity}
+                    <input type="number" min="0" max={999999} className="form-control form-control-sm" value={receiving.receivedQuantity}
                       onChange={(e) => setReceiving({ ...receiving, receivedQuantity: e.target.value })} /></div>
                   <div className="col-4"><label className="form-label small mb-0">양품 *</label>
-                    <input type="number" className="form-control form-control-sm" value={receiving.goodQuantity}
+                    <input type="number" min="0" max={999999} className="form-control form-control-sm" value={receiving.goodQuantity}
                       onChange={(e) => setReceiving({ ...receiving, goodQuantity: e.target.value })} /></div>
                   <div className="col-4"><label className="form-label small mb-0">불량</label>
-                    <input type="number" className="form-control form-control-sm" value={receiving.defectQuantity}
+                    <input type="number" min="0" max={999999} className="form-control form-control-sm" value={receiving.defectQuantity}
                       onChange={(e) => setReceiving({ ...receiving, defectQuantity: e.target.value })} /></div>
                 </div>
-                <input className="form-control form-control-sm mb-2" placeholder="불량 사유 (불량 시)"
+                <input className="form-control form-control-sm mb-2" placeholder="불량 사유 (불량 시)" maxLength={200}
                   value={receiving.defectReason} onChange={(e) => setReceiving({ ...receiving, defectReason: e.target.value })} />
                 <div className="row g-2">
                   <div className="col-6"><label className="form-label small mb-0">LOT 번호</label>
-                    <input className="form-control form-control-sm" placeholder="예: L20260712-01" value={receiving.lotNumber}
+                    <input className="form-control form-control-sm" placeholder="예: L20260712-01" maxLength={50} value={receiving.lotNumber}
                       onChange={(e) => setReceiving({ ...receiving, lotNumber: e.target.value })} /></div>
                   <div className="col-6"><label className="form-label small mb-0">유통기한</label>
                     <input type="date" className="form-control form-control-sm" value={receiving.expiryDate}

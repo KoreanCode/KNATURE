@@ -95,7 +95,7 @@ export default function MyOrderDetailPage() {
       {cs && (
         <div className="border rounded p-3 mt-3">
           <b>{cs.type === 'cancel' ? '취소' : cs.type === 'exchange' ? '교환' : '반품'} 신청 사유</b>
-          <textarea className="form-control form-control-sm mt-2" rows={2} value={cs.reason}
+          <textarea className="form-control form-control-sm mt-2" rows={2} maxLength={2000} value={cs.reason}
             onChange={(e) => setCs({ ...cs, reason: e.target.value })} placeholder="사유를 입력해주세요" />
           <div className="d-flex gap-2 mt-2">
             <button className="btn btn-sm btn-brand" onClick={submitCs}>신청하기</button>

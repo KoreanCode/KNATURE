@@ -62,7 +62,7 @@ export default function MyInfoPage() {
       {!verified ? (
         <form onSubmit={verify} style={{ maxWidth: 360 }}>
           <p className="small text-muted">회원 정보 보호를 위해 비밀번호를 다시 입력해주세요.</p>
-          <input type="password" className="form-control mb-2" placeholder="비밀번호" value={password}
+          <input type="password" className="form-control mb-2" placeholder="비밀번호" maxLength={64} value={password}
             onChange={(e) => setPassword(e.target.value)} required />
           <button className="btn btn-brand">확인</button>
         </form>
@@ -73,9 +73,9 @@ export default function MyInfoPage() {
             <label className="form-label small mb-0 mt-2">아이디</label>
             <input className="form-control form-control-sm" value={info.username} disabled readOnly />
             <label className="form-label small mb-0 mt-2">이메일</label>
-            <input className="form-control form-control-sm" value={info.email || ''} onChange={set('email')} />
+            <input className="form-control form-control-sm" maxLength={100} value={info.email || ''} onChange={set('email')} />
             <label className="form-label small mb-0 mt-2">휴대폰</label>
-            <input className="form-control form-control-sm" value={info.phone || ''} onChange={set('phone')} />
+            <input className="form-control form-control-sm" maxLength={20} value={info.phone || ''} onChange={set('phone')} />
             <label className="form-label small mb-0 mt-2">주소</label>
             <div className="d-flex gap-2 mb-1">
               <input className="form-control form-control-sm" style={{ maxWidth: 120 }} placeholder="우편번호" value={info.zipcode || ''} readOnly onChange={set('zipcode')} />
@@ -83,17 +83,17 @@ export default function MyInfoPage() {
               <button type="button" className="btn btn-sm btn-outline-brand flex-shrink-0"
                 onClick={() => openPostcode(({ zipcode, address }) => setInfo((p) => ({ ...p, zipcode, address })))}>주소 검색</button>
             </div>
-            <input className="form-control form-control-sm" placeholder="상세주소" value={info.addressDetail || ''} onChange={set('addressDetail')} />
+            <input className="form-control form-control-sm" placeholder="상세주소" maxLength={100} value={info.addressDetail || ''} onChange={set('addressDetail')} />
             <button className="btn btn-sm btn-brand mt-3" onClick={saveInfo}>정보 저장</button>
           </div>
 
           <div className="border rounded p-3 mb-3" style={{ maxWidth: 520 }}>
             <b className="d-block mb-2">비밀번호 변경</b>
-            <input type="password" className="form-control form-control-sm mb-1" placeholder="현재 비밀번호"
+            <input type="password" className="form-control form-control-sm mb-1" placeholder="현재 비밀번호" maxLength={64}
               value={pwForm.currentPassword} onChange={(e) => setPwForm((p) => ({ ...p, currentPassword: e.target.value }))} />
-            <input type="password" className="form-control form-control-sm mb-1" placeholder="새 비밀번호 (8자 이상)"
+            <input type="password" className="form-control form-control-sm mb-1" placeholder="새 비밀번호 (8자 이상)" maxLength={64}
               value={pwForm.newPassword} onChange={(e) => setPwForm((p) => ({ ...p, newPassword: e.target.value }))} />
-            <input type="password" className="form-control form-control-sm mb-2" placeholder="새 비밀번호 확인"
+            <input type="password" className="form-control form-control-sm mb-2" placeholder="새 비밀번호 확인" maxLength={64}
               value={pwForm.confirm} onChange={(e) => setPwForm((p) => ({ ...p, confirm: e.target.value }))} />
             <button className="btn btn-sm btn-outline-brand" onClick={changePw}>비밀번호 변경</button>
           </div>
@@ -103,7 +103,7 @@ export default function MyInfoPage() {
             <p className="small text-muted">탈퇴 시 로그인이 불가하며, 주문 이력은 법령에 따라 보존됩니다.</p>
             <div className="d-flex gap-2">
               <input type="password" className="form-control form-control-sm" style={{ maxWidth: 200 }}
-                placeholder="비밀번호 확인" value={withdrawPw} onChange={(e) => setWithdrawPw(e.target.value)} />
+                placeholder="비밀번호 확인" maxLength={64} value={withdrawPw} onChange={(e) => setWithdrawPw(e.target.value)} />
               <button className="btn btn-sm btn-outline-danger" onClick={withdraw}>탈퇴하기</button>
             </div>
           </div>

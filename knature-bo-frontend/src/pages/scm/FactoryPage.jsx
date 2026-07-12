@@ -90,15 +90,15 @@ export default function FactoryPage() {
               <div className="modal-header"><h6 className="modal-title">{form.id ? '공장 수정' : '공장 등록'}</h6>
                 <button type="button" className="btn-close" onClick={() => setForm(null)} /></div>
               <div className="modal-body">
-                <input className="form-control form-control-sm mb-2" placeholder="공장명 *" value={form.name} onChange={set('name')} />
-                <input className="form-control form-control-sm mb-2" placeholder="사업자번호" value={form.bizNumber || ''} onChange={set('bizNumber')} />
-                <input className="form-control form-control-sm mb-2" placeholder="주소" value={form.address || ''} onChange={set('address')} />
-                <input className="form-control form-control-sm mb-2" placeholder="연락처" value={form.phone || ''} onChange={set('phone')} />
-                <input className="form-control form-control-sm mb-2" placeholder="담당자명" value={form.managerName || ''} onChange={set('managerName')} />
+                <input className="form-control form-control-sm mb-2" placeholder="공장명 *" value={form.name} maxLength={100} onChange={set('name')} />
+                <input className="form-control form-control-sm mb-2" placeholder="사업자번호" value={form.bizNumber || ''} maxLength={100} onChange={set('bizNumber')} />
+                <input className="form-control form-control-sm mb-2" placeholder="주소" value={form.address || ''} maxLength={200} onChange={set('address')} />
+                <input className="form-control form-control-sm mb-2" placeholder="연락처" value={form.phone || ''} maxLength={20} onChange={set('phone')} />
+                <input className="form-control form-control-sm mb-2" placeholder="담당자명" value={form.managerName || ''} maxLength={50} onChange={set('managerName')} />
                 <label className="form-label small mb-0">담당 지역 <small className="text-muted">(쉼표 구분 — 주문 배송지가 이 지역이면 자동발주 시 이 공장 우선)</small></label>
-                <input className="form-control form-control-sm mb-2" placeholder="예: 서울,경기,인천" value={form.region || ''} onChange={set('region')} />
+                <input className="form-control form-control-sm mb-2" placeholder="예: 서울,경기,인천" value={form.region || ''} maxLength={200} onChange={set('region')} />
                 <label className="form-label small mb-0">기본 리드타임 (일)</label>
-                <input type="number" className="form-control form-control-sm" value={form.leadTimeDays} onChange={set('leadTimeDays')} />
+                <input type="number" min="0" max={365} className="form-control form-control-sm" value={form.leadTimeDays} onChange={set('leadTimeDays')} />
               </div>
               <div className="modal-footer">
                 <button className="btn btn-secondary btn-sm" onClick={() => setForm(null)}>취소</button>
@@ -117,11 +117,11 @@ export default function FactoryPage() {
                 <button type="button" className="btn-close" onClick={() => setManagerFor(null)} /></div>
               <div className="modal-body">
                 <p className="small text-muted">이 계정으로 BO 로그인 시 <b>자기 공장 발주 확인/생산상태 업데이트, 공장 재고</b>만 접근됩니다.</p>
-                <input className="form-control form-control-sm mb-2" placeholder="아이디 *" value={managerFor.username}
+                <input className="form-control form-control-sm mb-2" placeholder="아이디 *" maxLength={50} value={managerFor.username}
                   onChange={(e) => setManagerFor({ ...managerFor, username: e.target.value })} />
-                <input type="password" className="form-control form-control-sm mb-2" placeholder="비밀번호 *" value={managerFor.password}
+                <input type="password" className="form-control form-control-sm mb-2" placeholder="비밀번호 *" maxLength={64} value={managerFor.password}
                   onChange={(e) => setManagerFor({ ...managerFor, password: e.target.value })} />
-                <input className="form-control form-control-sm" placeholder="담당자 이름 *" value={managerFor.adminName}
+                <input className="form-control form-control-sm" placeholder="담당자 이름 *" maxLength={50} value={managerFor.adminName}
                   onChange={(e) => setManagerFor({ ...managerFor, adminName: e.target.value })} />
               </div>
               <div className="modal-footer">
@@ -161,11 +161,11 @@ export default function FactoryPage() {
                     <option value="">상품 선택</option>
                     {mappingFor.products.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
                   </select>
-                  <input type="number" className="form-control form-control-sm" style={{ width: 110 }} placeholder="단가"
+                  <input type="number" min="0" max={99999999} className="form-control form-control-sm" style={{ width: 110 }} placeholder="단가"
                     value={mappingFor.new.unitCost} onChange={(e) => setMappingFor({ ...mappingFor, new: { ...mappingFor.new, unitCost: e.target.value } })} />
-                  <input type="number" className="form-control form-control-sm" style={{ width: 90 }} placeholder="MOQ"
+                  <input type="number" min="0" max={999999} className="form-control form-control-sm" style={{ width: 90 }} placeholder="MOQ"
                     value={mappingFor.new.moq} onChange={(e) => setMappingFor({ ...mappingFor, new: { ...mappingFor.new, moq: e.target.value } })} />
-                  <input type="number" className="form-control form-control-sm" style={{ width: 100 }} placeholder="리드타임"
+                  <input type="number" min="0" max={365} className="form-control form-control-sm" style={{ width: 100 }} placeholder="리드타임"
                     value={mappingFor.new.leadTimeDays} onChange={(e) => setMappingFor({ ...mappingFor, new: { ...mappingFor.new, leadTimeDays: e.target.value } })} />
                   <button className="btn btn-sm btn-primary flex-shrink-0" onClick={addMapping}>추가</button>
                 </div>

@@ -61,6 +61,7 @@ export default function SettingsPage() {
           <label className="col-sm-3 col-form-label fw-bold">{f.label}</label>
           <div className="col-sm-6">
             <input type="text" className="form-control form-control-sm" value={settings[f.key] || ''}
+              maxLength={f.key === 'shop.address' ? 200 : f.key === 'shop.tel' ? 20 : 100}
               placeholder={f.placeholder || ''} onChange={setVal(f.key)} />
           </div>
         </div>
@@ -126,17 +127,17 @@ export default function SettingsPage() {
               <div className="modal-body">
                 <div className="mb-2">
                   <label className="form-label">아이디 *</label>
-                  <input type="text" className="form-control" value={adminForm.username} disabled={!!adminForm.id}
+                  <input type="text" className="form-control" value={adminForm.username} maxLength={50} disabled={!!adminForm.id}
                     onChange={(e) => setAdminForm({ ...adminForm, username: e.target.value })} />
                 </div>
                 <div className="mb-2">
                   <label className="form-label">비밀번호 {adminForm.id ? '(변경 시에만 입력)' : '*'}</label>
-                  <input type="password" className="form-control" value={adminForm.password}
+                  <input type="password" className="form-control" value={adminForm.password} maxLength={64}
                     onChange={(e) => setAdminForm({ ...adminForm, password: e.target.value })} />
                 </div>
                 <div>
                   <label className="form-label">이름 *</label>
-                  <input type="text" className="form-control" value={adminForm.name}
+                  <input type="text" className="form-control" value={adminForm.name} maxLength={50}
                     onChange={(e) => setAdminForm({ ...adminForm, name: e.target.value })} />
                 </div>
                 <small className="text-muted">1차에서는 최고관리자 권한만 등록됩니다. (공장관리자는 2차)</small>
