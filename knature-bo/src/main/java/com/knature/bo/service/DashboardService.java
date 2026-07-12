@@ -1,16 +1,19 @@
 package com.knature.bo.service;
 
 import com.knature.common.domain.order.OrderStatus;
+import com.knature.common.domain.scm.PurchaseOrder.PoStatus;
 import com.knature.common.repository.MemberRepository;
 import com.knature.common.repository.OrderRepository;
 import com.knature.common.repository.OrderStatusHistoryRepository;
 import com.knature.common.repository.ProductRepository;
+import com.knature.common.repository.PurchaseOrderRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -21,6 +24,33 @@ public class DashboardService {
     private final MemberRepository memberRepository;
     private final ProductRepository productRepository;
     private final OrderStatusHistoryRepository statusHistoryRepository;
+    private final PurchaseOrderRepository purchaseOrderRepository;
+
+    /** 발주 미처리 현황 — 승인대기 건수 + 납기 임박(D-3)/초과 건수 (2차 SCM) */
+    public Map<String, Long> getPoAlerts() {
+        LocalDate today = LocalDate.now();
+        var open = purchaseOrderRepository.findAll().stream().filter(po -> po.isOpen()).toList();
+        Map<String, Long> alerts = new LinkedHashMap<>();
+        alerts.put("승인대기", purchaseOrderRepository.countByStatus(PoStatus.REQUESTED));
+        alerts.put("납기임박", open.stream().filter(po -> po.getDueDate() != null
+                && !po.getDueDate().isBefore(today)
+                && !po.getDueDate().isAfter(today.plusDays(3))).count());
+        alerts.put("납기초과", open.stream().filter(po -> po.getDueDate() != null
+                && po.getDueDate().isBefore(today)).count());
+        return alerts;
+    }
+
+    /** 재고 부족 상품 (안전재고 이하) — 자동발주 트리거 대상 */
+    public List<Map<String, Object>> getLowStockProducts() {
+        return productRepository.findAll().stream()
+                .filter(p -> p.getSafetyStock() != null && p.getSafetyStock() > 0)
+                .filter(p -> (p.getStockQuantity() == null ? 0 : p.getStockQuantity()) <= p.getSafetyStock())
+                .map(p -> Map.<String, Object>of(
+                        "id", p.getId(), "name", p.getName(),
+                        "stock", p.getStockQuantity() == null ? 0 : p.getStockQuantity(),
+                        "safetyStock", p.getSafetyStock()))
+                .toList();
+    }
 
     /** 오늘 처리한 일 — 상태변경 이력 기반 (입금확인/배송처리/취소/환불 완료 건수) */
     public Map<String, Long> getTodayProcessedCounts() {

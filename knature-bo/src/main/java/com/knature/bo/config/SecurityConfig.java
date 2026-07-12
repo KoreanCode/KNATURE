@@ -53,11 +53,15 @@ public class SecurityConfig {
             )
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/auth/**").permitAll()
-                // 관리 기능은 최고관리자만 (공장관리자 등은 접근 불가)
+                // 공장관리자 접근 허용: 발주(자기 공장 확인/생산상태), 공장 재고 — 세부 스코프는 컨트롤러에서 검증
+                .requestMatchers("/api/purchase-orders/**", "/api/factory-stocks/**")
+                    .hasAnyRole("SUPER_ADMIN", "FACTORY_ADMIN")
+                // 그 외 관리 기능은 최고관리자만
                 .requestMatchers("/api/dashboard/**", "/api/products/**", "/api/orders/**", "/api/members/**",
                                  "/api/stocks/**", "/api/settings/**", "/api/admins/**", "/api/files/**",
                                  "/api/mileages/**", "/api/coupons/**",
-                                 "/api/articles/**", "/api/reviews/**", "/api/inquiries/**")
+                                 "/api/articles/**", "/api/reviews/**", "/api/inquiries/**",
+                                 "/api/factories/**")
                     .hasRole("SUPER_ADMIN")
                 .requestMatchers("/api/**").authenticated()
                 .anyRequest().permitAll()

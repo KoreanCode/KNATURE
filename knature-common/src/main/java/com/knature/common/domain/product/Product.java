@@ -51,6 +51,10 @@ public class Product extends BaseEntity {
     @Column(nullable = false, columnDefinition = "int default 0")
     private Integer stockQuantity = 0;
 
+    /** 안전재고 — 이하로 떨어지면 부족 알림 + 자동 발주 트리거 (2차 SCM) */
+    @Column(nullable = false, columnDefinition = "int default 0")
+    private Integer safetyStock = 0;
+
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("sortOrder ASC")
     @JsonIgnoreProperties({"product", "hibernateLazyInitializer"})

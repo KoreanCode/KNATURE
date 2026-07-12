@@ -30,12 +30,7 @@ public class AuthController {
         session.setAttribute("SPRING_SECURITY_CONTEXT", SecurityContextHolder.getContext());
 
         Admin admin = adminRepository.findByUsername(request.get("username")).orElseThrow();
-        return ResponseEntity.ok(Map.of(
-                "id", admin.getId(),
-                "username", admin.getUsername(),
-                "name", admin.getName(),
-                "role", admin.getRole().name()
-        ));
+        return ResponseEntity.ok(adminSummary(admin));
     }
 
     @PostMapping("/logout")
@@ -52,11 +47,20 @@ public class AuthController {
             return ResponseEntity.status(401).body(Map.of("message", "인증되지 않았습니다."));
         }
         Admin admin = adminRepository.findByUsername(auth.getName()).orElseThrow();
-        return ResponseEntity.ok(Map.of(
-                "id", admin.getId(),
-                "username", admin.getUsername(),
-                "name", admin.getName(),
-                "role", admin.getRole().name()
-        ));
+        return ResponseEntity.ok(adminSummary(admin));
+    }
+
+    /** 응답 공통 — 공장관리자는 소속 공장 정보 포함 (프론트 메뉴/스코프 분기용) */
+    private Map<String, Object> adminSummary(Admin admin) {
+        Map<String, Object> result = new java.util.LinkedHashMap<>();
+        result.put("id", admin.getId());
+        result.put("username", admin.getUsername());
+        result.put("name", admin.getName());
+        result.put("role", admin.getRole().name());
+        if (admin.getFactory() != null) {
+            result.put("factoryId", admin.getFactory().getId());
+            result.put("factoryName", admin.getFactory().getName());
+        }
+        return result;
     }
 }

@@ -53,6 +53,7 @@ export default function StockListPage() {
               <th>상품명</th>
               <th>상품코드</th>
               <th className="text-end">재고 수량</th>
+              <th className="text-end">안전재고</th>
               <th className="text-center">판매상태</th>
               <th className="text-center" style={{ width: 180 }}>관리</th>
             </tr>
@@ -63,7 +64,21 @@ export default function StockListPage() {
                 <td>{stocks.number * 20 + i + 1}</td>
                 <td>{p.name}</td>
                 <td>{p.code || '-'}</td>
-                <td className="text-end fw-bold">{(p.stockQuantity ?? 0).toLocaleString()}개</td>
+                <td className="text-end fw-bold">
+                  {(p.stockQuantity ?? 0).toLocaleString()}개
+                  {(p.safetyStock ?? 0) > 0 && (p.stockQuantity ?? 0) <= p.safetyStock &&
+                    <span className="badge bg-danger ms-1">부족</span>}
+                </td>
+                <td className="text-end">
+                  <span style={{ cursor: 'pointer' }} className="text-decoration-underline" title="클릭하여 수정"
+                    onClick={() => {
+                      const v = prompt(`'${p.name}' 안전재고 설정 (이하 시 부족 알림 + 자동발주 대상)`, p.safetyStock ?? 0);
+                      if (v === null) return;
+                      api.patch(`/stocks/${p.id}/safety`, { safetyStock: v })
+                        .then((res) => { alert(res.data.message); load(); })
+                        .catch((err) => alert(err.response?.data?.message || '설정 실패'));
+                    }}>{(p.safetyStock ?? 0).toLocaleString()}개</span>
+                </td>
                 <td className="text-center"><span className={`badge ${STATUS_COLORS[p.status]}`}>{STATUS_LABELS[p.status]}</span></td>
                 <td className="text-center">
                   <button className="btn btn-sm btn-outline-primary me-1" onClick={() => openAdjust(p)}>재고 조정</button>
@@ -72,7 +87,7 @@ export default function StockListPage() {
               </tr>
             ))}
             {stocks.totalElements === 0 && (
-              <tr><td colSpan={6} className="text-center text-muted py-4">상품이 없습니다.</td></tr>
+              <tr><td colSpan={7} className="text-center text-muted py-4">상품이 없습니다.</td></tr>
             )}
           </tbody>
         </table>

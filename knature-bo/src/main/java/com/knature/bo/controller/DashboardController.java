@@ -18,16 +18,18 @@ public class DashboardController {
 
     @GetMapping
     public ResponseEntity<?> dashboard() {
-        return ResponseEntity.ok(Map.of(
-                "orderCounts", dashboardService.getOrderStatusCounts(),
-                "csCounts", dashboardService.getCsStatusCounts(),
-                "todayProcessed", dashboardService.getTodayProcessedCounts(),
-                "todaySales", dashboardService.getTodaySales(),
-                "todayOrders", dashboardService.getTodayOrderCount(),
-                "weeklySales", dashboardService.getWeeklySales(),
-                "totalMembers", dashboardService.getTotalMembers(),
-                "newMembers", dashboardService.getTodayNewMembers(),
-                "totalProducts", dashboardService.getTotalProducts()
-        ));
+        Map<String, Object> result = new java.util.LinkedHashMap<>();
+        result.put("orderCounts", dashboardService.getOrderStatusCounts());
+        result.put("csCounts", dashboardService.getCsStatusCounts());
+        result.put("todayProcessed", dashboardService.getTodayProcessedCounts());
+        result.put("poAlerts", dashboardService.getPoAlerts());
+        result.put("lowStock", dashboardService.getLowStockProducts());
+        result.put("todaySales", dashboardService.getTodaySales());
+        result.put("todayOrders", dashboardService.getTodayOrderCount());
+        result.put("weeklySales", dashboardService.getWeeklySales());
+        result.put("totalMembers", dashboardService.getTotalMembers());
+        result.put("newMembers", dashboardService.getTodayNewMembers());
+        result.put("totalProducts", dashboardService.getTotalProducts());
+        return ResponseEntity.ok(result);
     }
 }

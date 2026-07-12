@@ -117,6 +117,43 @@ export default function DashboardPage() {
         </div>
       </div>
 
+      {/* SCM — 발주 미처리 / 재고 부족 (2차) */}
+      <div className="row mb-4">
+        <div className="col-md-4">
+          <div className="content-card">
+            <h6><i className="bi bi-truck text-primary"></i> 발주 미처리</h6>
+            <table className="table table-sm mt-2 mb-0">
+              <tbody>
+                {Object.entries(data.poAlerts || {}).map(([k, v]) => (
+                  <tr key={k}><td>{k}</td><td className="text-end"><span className={`badge ${v > 0 ? (k === '납기초과' ? 'bg-danger' : 'bg-warning text-dark') : 'bg-secondary'}`}>{v}건</span></td></tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div className="col-md-8">
+          <div className="content-card">
+            <h6><i className="bi bi-exclamation-triangle text-danger"></i> 재고 부족 (안전재고 이하 — 자동발주 대상)</h6>
+            {(data.lowStock || []).length === 0
+              ? <p className="text-muted small mt-2 mb-0">부족 상품이 없습니다.</p>
+              : (
+                <table className="table table-sm mt-2 mb-0">
+                  <thead><tr><th>상품</th><th className="text-end">현재 재고</th><th className="text-end">안전재고</th></tr></thead>
+                  <tbody>
+                    {data.lowStock.map((p) => (
+                      <tr key={p.id}>
+                        <td>{p.name}</td>
+                        <td className="text-end text-danger fw-bold">{p.stock}개</td>
+                        <td className="text-end">{p.safetyStock}개</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+          </div>
+        </div>
+      </div>
+
       <div className="content-card">
         <h6><i className="bi bi-graph-up text-success"></i> 최근 7일 매출</h6>
         <SalesLineChart data={data.weeklySales} />

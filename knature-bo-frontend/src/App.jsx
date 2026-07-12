@@ -15,6 +15,9 @@ import MileagePage from './pages/benefit/MileagePage'
 import CouponPage from './pages/benefit/CouponPage'
 import BoardPage from './pages/board/BoardPage'
 import CsPage from './pages/board/CsPage'
+import FactoryPage from './pages/scm/FactoryPage'
+import PurchaseOrderPage from './pages/scm/PurchaseOrderPage'
+import FactoryStockPage from './pages/scm/FactoryStockPage'
 
 export default function App() {
   return (
@@ -35,6 +38,9 @@ export default function App() {
         <Route path="/coupons" element={<CouponPage />} />
         <Route path="/boards" element={<BoardPage />} />
         <Route path="/cs" element={<CsPage />} />
+        <Route path="/factories" element={<FactoryPage />} />
+        <Route path="/purchase-orders" element={<PurchaseOrderPage />} />
+        <Route path="/factory-stocks" element={<FactoryStockPage />} />
         <Route path="/settings" element={<SettingsPage />} />
       </Route>
       <Route path="*" element={<Navigate to="/dashboard" replace />} />
