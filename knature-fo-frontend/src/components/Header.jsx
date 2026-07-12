@@ -42,8 +42,8 @@ export default function Header() {
 
         <nav className="fo-gnb d-none d-md-flex">
           <Link to="/products">PRODUCT</Link>
+          <Link to="/community">COMMUNITY</Link>
           <Link to="/page/guide">GUIDE</Link>
-          <Link to="/page/agreement">POLICY</Link>
         </nav>
 
         <div className="d-flex align-items-center gap-3">

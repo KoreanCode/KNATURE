@@ -12,10 +12,30 @@ export default function ProductDetailPage() {
   const [imageIdx, setImageIdx] = useState(0);
   const [optionId, setOptionId] = useState('');
   const [quantity, setQuantity] = useState(1);
+  const [detailTab, setDetailTab] = useState('detail'); // detail | review
+  const [reviews, setReviews] = useState([]);
+  const [reviewForm, setReviewForm] = useState({ rating: 5, content: '' });
 
   useEffect(() => {
     api.get(`/products/${id}`).then((res) => setProduct(res.data)).catch(() => navigate('/products'));
+    loadReviews();
   }, [id]);
+
+  const loadReviews = () => {
+    api.get(`/products/${id}/reviews`).then((res) => setReviews(res.data)).catch(() => setReviews([]));
+  };
+
+  const submitReview = () => {
+    api.post('/reviews', { productId: id, rating: String(reviewForm.rating), content: reviewForm.content })
+      .then((res) => { alert(res.data.message); setReviewForm({ rating: 5, content: '' }); loadReviews(); })
+      .catch((err) => {
+        if (err.response?.status === 401 || err.response?.status === 403) {
+          alert('후기 작성은 로그인 후 이용해주세요.');
+        } else {
+          alert(err.response?.data?.message || '후기 등록에 실패했습니다.');
+        }
+      });
+  };
 
   if (!product) return <div className="container py-5 text-center">로딩중...</div>;
 
@@ -136,16 +156,58 @@ export default function ProductDetailPage() {
         </div>
       </div>
 
-      {/* 상세 설명 */}
+      {/* 상세 설명 / 후기 */}
       <div className="mt-5">
         <ul className="nav nav-tabs">
-          <li className="nav-item"><span className="nav-link active">상세정보</span></li>
+          <li className="nav-item">
+            <button className={`nav-link ${detailTab === 'detail' ? 'active' : ''}`} onClick={() => setDetailTab('detail')}>상세정보</button>
+          </li>
+          <li className="nav-item">
+            <button className={`nav-link ${detailTab === 'review' ? 'active' : ''}`} onClick={() => setDetailTab('review')}>
+              상품후기 <span className="badge bg-brand-light text-brand border">{reviews.length}</span>
+            </button>
+          </li>
         </ul>
-        <div className="py-4">
-          {product.detailContent
-            ? <div dangerouslySetInnerHTML={{ __html: product.detailContent }} />
-            : <p className="text-muted text-center py-5">상세 설명이 준비 중입니다.</p>}
-        </div>
+
+        {detailTab === 'detail' && (
+          <div className="py-4">
+            {product.detailContent
+              ? <div dangerouslySetInnerHTML={{ __html: product.detailContent }} />
+              : <p className="text-muted text-center py-5">상세 설명이 준비 중입니다.</p>}
+          </div>
+        )}
+
+        {detailTab === 'review' && (
+          <div className="py-4">
+            {/* 후기 작성 */}
+            <div className="border rounded p-3 mb-4">
+              <b className="d-block mb-2">후기 작성 <small className="text-muted">(배송완료된 구매 상품만 · 작성 시 적립금 지급)</small></b>
+              <div className="d-flex align-items-center gap-1 mb-2">
+                {[1, 2, 3, 4, 5].map((n) => (
+                  <button key={n} className="btn btn-link p-0 fs-4 text-decoration-none"
+                    style={{ color: n <= reviewForm.rating ? '#f5a623' : '#ddd' }}
+                    onClick={() => setReviewForm((p) => ({ ...p, rating: n }))}>★</button>
+                ))}
+                <span className="small text-muted ms-2">{reviewForm.rating}점</span>
+              </div>
+              <textarea className="form-control form-control-sm mb-2" rows={3} placeholder="사용 후기를 남겨주세요"
+                value={reviewForm.content} onChange={(e) => setReviewForm((p) => ({ ...p, content: e.target.value }))} />
+              <button className="btn btn-sm btn-brand" onClick={submitReview}>후기 등록</button>
+            </div>
+
+            {/* 후기 목록 */}
+            {reviews.length === 0 && <p className="text-muted text-center py-4">첫 번째 후기를 남겨주세요!</p>}
+            {reviews.map((r) => (
+              <div key={r.id} className="border-bottom py-3">
+                <div className="d-flex justify-content-between">
+                  <span style={{ color: '#f5a623' }}>{'★'.repeat(r.rating)}{'☆'.repeat(5 - r.rating)}</span>
+                  <span className="small text-muted">{r.member?.name?.charAt(0)}** · {r.createdAt?.slice(0, 10)}</span>
+                </div>
+                <p className="mb-0 mt-1" style={{ whiteSpace: 'pre-wrap' }}>{r.content}</p>
+              </div>
+            ))}
+          </div>
+        )}
 
         <div className="bg-brand-light rounded p-4 small">
           <b>배송/교환/반품 안내</b>
