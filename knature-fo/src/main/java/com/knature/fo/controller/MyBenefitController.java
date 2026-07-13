@@ -3,6 +3,7 @@ package com.knature.fo.controller;
 import com.knature.common.domain.member.Member;
 import com.knature.common.repository.MemberRepository;
 import com.knature.common.service.CouponService;
+import com.knature.common.service.DepositService;
 import com.knature.common.service.MileageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +23,7 @@ public class MyBenefitController {
     private final MemberRepository memberRepository;
     private final MileageService mileageService;
     private final CouponService couponService;
+    private final DepositService depositService;
 
     private Member me(Authentication auth) {
         return memberRepository.findByUsername(auth.getName())
@@ -33,6 +35,7 @@ public class MyBenefitController {
         Member member = me(auth);
         return ResponseEntity.ok(Map.of(
                 "balance", member.getMileage() == null ? 0 : member.getMileage(),
+                "pending", mileageService.getPendingSum(member.getId()),
                 "history", mileageService.getHistory(member.getId())
         ));
     }
@@ -40,5 +43,15 @@ public class MyBenefitController {
     @GetMapping("/coupons")
     public ResponseEntity<?> coupons(Authentication auth) {
         return ResponseEntity.ok(couponService.getMemberCoupons(me(auth).getId()));
+    }
+
+    /** 예치금 내역 (2차) */
+    @GetMapping("/deposit")
+    public ResponseEntity<?> deposit(Authentication auth) {
+        Member member = me(auth);
+        return ResponseEntity.ok(Map.of(
+                "balance", member.getDeposit() == null ? 0 : member.getDeposit(),
+                "history", depositService.getHistory(member.getId())
+        ));
     }
 }

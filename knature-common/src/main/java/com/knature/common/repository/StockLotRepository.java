@@ -9,4 +9,6 @@ public interface StockLotRepository extends JpaRepository<StockLot, Long> {
     List<StockLot> findByProductIdOrderByExpiryDateAsc(Long productId);
 
     List<StockLot> findAllByOrderByExpiryDateAsc();
+
+    List<StockLot> findByProductIdAndQuantityGreaterThanOrderByManufactureDateAscIdAsc(Long productId, int quantity);
 }

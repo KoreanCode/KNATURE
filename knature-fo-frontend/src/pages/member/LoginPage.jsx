@@ -35,6 +35,8 @@ export default function LoginPage() {
         <Link to="/member/join" className="text-muted">회원가입</Link>
         <span className="text-muted">|</span>
         <Link to="/member/find" className="text-muted">아이디/비밀번호 찾기</Link>
+        <span className="text-muted">|</span>
+        <Link to="/order/guest" className="text-muted">비회원 주문 조회</Link>
       </div>
     </div>
   );

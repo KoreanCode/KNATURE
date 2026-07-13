@@ -4,7 +4,7 @@ import TopBar from '../../components/TopBar';
 
 const fmt = (n) => Number(n).toLocaleString();
 const GRADES = ['NEW', 'RUBY', 'SILVER', 'GOLD', 'DIAMOND', 'PLATINUM'];
-const EMPTY = { name: '', code: '', discountType: 'FIXED', amount: '', maxDiscount: '', minOrderAmount: '', validUntil: '' };
+const EMPTY = { name: '', code: '', discountType: 'FIXED', amount: '', maxDiscount: '', minOrderAmount: '', validUntil: '', birthdayCoupon: false };
 
 export default function CouponPage() {
   const [coupons, setCoupons] = useState([]);
@@ -17,7 +17,7 @@ export default function CouponPage() {
   const set = (k) => (e) => setForm((p) => ({ ...p, [k]: e.target.value }));
 
   const save = () => {
-    api.post('/coupons', form)
+    api.post('/coupons', { ...form, birthdayCoupon: form.birthdayCoupon ? 'true' : 'false' })
       .then(() => { alert('쿠폰이 생성되었습니다.'); setForm(null); load(); })
       .catch((err) => alert(err.response?.data?.message || '생성에 실패했습니다.'));
   };
@@ -48,7 +48,7 @@ export default function CouponPage() {
           <tbody>
             {coupons.map(({ coupon: c, issuedCount, usedCount }) => (
               <tr key={c.id}>
-                <td>{c.name}</td>
+                <td>{c.name}{c.birthdayCoupon === true && <span className="badge bg-info ms-1">생일</span>}</td>
                 <td>{c.code ? <code>{c.code}</code> : '-'}</td>
                 <td>{discountLabel(c)}</td>
                 <td className="text-end">{c.minOrderAmount > 0 ? fmt(c.minOrderAmount) + '원' : '-'}</td>
@@ -100,6 +100,11 @@ export default function CouponPage() {
                 <input type="number" min="0" max={99999999} className="form-control form-control-sm mb-2" value={form.minOrderAmount} onChange={set('minOrderAmount')} />
                 <label className="form-label small mb-0">유효기간 (까지, 비우면 무기한)</label>
                 <input type="date" className="form-control form-control-sm" value={form.validUntil} onChange={set('validUntil')} />
+                <div className="form-check mt-2">
+                  <input className="form-check-input" type="checkbox" id="birthdayCoupon" checked={!!form.birthdayCoupon}
+                    onChange={(e) => { const checked = e.target.checked; setForm((p) => ({ ...p, birthdayCoupon: checked })); }} />
+                  <label className="form-check-label small" htmlFor="birthdayCoupon">생일 쿠폰 (회원 생일에 자동 발급)</label>
+                </div>
               </div>
               <div className="modal-footer">
                 <button className="btn btn-secondary btn-sm" onClick={() => setForm(null)}>취소</button>

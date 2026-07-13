@@ -75,6 +75,19 @@ public class Order extends BaseEntity {
     @Column
     private Long usedMemberCouponId;
 
+    /** 사용한 예치금 (취소 시 환급) — 2차 */
+    @Column(nullable = false, columnDefinition = "bigint default 0")
+    private Long usedDeposit = 0L;
+
+    /** 비회원 주문 조회 비밀번호 (BCrypt 해시) — 2차 */
+    @com.fasterxml.jackson.annotation.JsonIgnore
+    @Column(length = 100)
+    private String guestPassword;
+
+    public boolean isGuest() {
+        return member == null;
+    }
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private PaymentMethod paymentMethod;

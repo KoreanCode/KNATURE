@@ -33,10 +33,19 @@ public class FoOrderController {
         )).toList();
 
         long useMileage = body.get("useMileage") != null ? ((Number) body.get("useMileage")).longValue() : 0;
+        long useDeposit = body.get("useDeposit") != null ? ((Number) body.get("useDeposit")).longValue() : 0;
         Long memberCouponId = body.get("memberCouponId") != null ? ((Number) body.get("memberCouponId")).longValue() : null;
 
+        // 비회원 주문 (2차): 비로그인 + guest 정보 포함
+        FoOrderService.GuestInfo guest = null;
+        if (auth == null) {
+            guest = new FoOrderService.GuestInfo(
+                    (String) body.get("guestName"), (String) body.get("guestEmail"),
+                    (String) body.get("guestPhone"), (String) body.get("guestPassword"));
+        }
+
         Order order = orderService.createOrder(
-                auth.getName(),
+                auth != null ? auth.getName() : null,
                 items,
                 PaymentMethod.valueOf((String) body.get("paymentMethod")),
                 (String) body.get("receiverName"),
@@ -46,17 +55,28 @@ public class FoOrderController {
                 (String) body.get("addressDetail"),
                 (String) body.get("deliveryMemo"),
                 useMileage,
-                memberCouponId
+                memberCouponId,
+                useDeposit,
+                guest
         );
-        return ResponseEntity.ok(Map.of(
-                "orderId", order.getId(),
-                "orderNumber", order.getOrderNumber(),
-                "paymentAmount", order.getPaymentAmount(),
-                "usedMileage", order.getUsedMileage(),
-                "couponDiscount", order.getCouponDiscount(),
-                "paymentMethod", order.getPaymentMethod().name(),
-                "status", order.getStatus().name()
-        ));
+        Map<String, Object> result = new java.util.LinkedHashMap<>();
+        result.put("orderId", order.getId());
+        result.put("orderNumber", order.getOrderNumber());
+        result.put("paymentAmount", order.getPaymentAmount());
+        result.put("usedMileage", order.getUsedMileage());
+        result.put("usedDeposit", order.getUsedDeposit());
+        result.put("couponDiscount", order.getCouponDiscount());
+        result.put("paymentMethod", order.getPaymentMethod().name());
+        result.put("status", order.getStatus().name());
+        result.put("guest", order.isGuest());
+        return ResponseEntity.ok(result);
+    }
+
+    /** 비회원 주문 조회 — 주문번호 + 주문 비밀번호 (2차) */
+    @PostMapping("/guest/lookup")
+    public ResponseEntity<?> guestLookup(@RequestBody Map<String, String> body) {
+        Order order = orderService.getGuestOrder(body.get("orderNumber"), body.get("password"));
+        return ResponseEntity.ok(order);
     }
 
     @GetMapping

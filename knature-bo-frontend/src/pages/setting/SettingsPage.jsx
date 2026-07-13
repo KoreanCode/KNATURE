@@ -18,6 +18,12 @@ const DELIVERY_FIELDS = [
   { key: 'delivery.remoteAreaFee', label: '산간벽지 추가비용 (원)' },
 ];
 
+const MILEAGE_FIELDS = [
+  { key: 'mileage.joinBonus', label: '가입 적립금 (P)', placeholder: '기본 5000' },
+  { key: 'mileage.reviewBonus', label: '리뷰 적립금 (P)', placeholder: '기본 500' },
+  { key: 'mileage.usableAfterDays', label: '구매 적립 사용 가능 시점 (배송완료 후 N일, 0=즉시)', type: 'number', min: 0, max: 365, defaultValue: '20' },
+];
+
 export default function SettingsPage() {
   const [tab, setTab] = useState('shop');
   const [settings, setSettings] = useState({});
@@ -60,9 +66,15 @@ export default function SettingsPage() {
         <div className="row mb-2 align-items-center" key={f.key}>
           <label className="col-sm-3 col-form-label fw-bold">{f.label}</label>
           <div className="col-sm-6">
-            <input type="text" className="form-control form-control-sm" value={settings[f.key] || ''}
-              maxLength={f.key === 'shop.address' ? 200 : f.key === 'shop.tel' ? 20 : 100}
-              placeholder={f.placeholder || ''} onChange={setVal(f.key)} />
+            {f.type === 'number' ? (
+              <input type="number" className="form-control form-control-sm" value={settings[f.key] ?? f.defaultValue ?? ''}
+                min={f.min} max={f.max}
+                placeholder={f.placeholder || ''} onChange={setVal(f.key)} />
+            ) : (
+              <input type="text" className="form-control form-control-sm" value={settings[f.key] || ''}
+                maxLength={f.key === 'shop.address' ? 200 : f.key === 'shop.tel' ? 20 : 100}
+                placeholder={f.placeholder || ''} onChange={setVal(f.key)} />
+            )}
           </div>
         </div>
       ))}
@@ -75,7 +87,7 @@ export default function SettingsPage() {
       <TopBar title="설정" />
       <div className="content-card">
         <ul className="nav nav-tabs mb-3">
-          {[['shop', '상점 정보'], ['delivery', '배송 정책'], ['admins', '관리자 계정']].map(([k, label]) => (
+          {[['shop', '상점 정보'], ['delivery', '배송 정책'], ['mileage', '적립금 정책'], ['admins', '관리자 계정']].map(([k, label]) => (
             <li className="nav-item" key={k}>
               <button className={`nav-link ${tab === k ? 'active' : ''}`} onClick={() => setTab(k)}>{label}</button>
             </li>
@@ -84,6 +96,7 @@ export default function SettingsPage() {
 
         {tab === 'shop' && renderFields(SHOP_FIELDS)}
         {tab === 'delivery' && renderFields(DELIVERY_FIELDS)}
+        {tab === 'mileage' && renderFields(MILEAGE_FIELDS)}
 
         {tab === 'admins' && (
           <>

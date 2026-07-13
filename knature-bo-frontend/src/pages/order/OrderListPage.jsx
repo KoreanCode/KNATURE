@@ -104,7 +104,8 @@ export default function OrderListPage() {
             <tbody>
               {orders.content.map((o, i) => (
                 <tr key={o.id} style={{ cursor: 'pointer' }} onClick={() => navigate(`/orders/${o.id}`)}>
-                  <td>{orders.number * 20 + i + 1}</td><td>{o.orderNumber}</td><td>{o.ordererName}</td>
+                  <td>{orders.number * 20 + i + 1}</td><td>{o.orderNumber}</td>
+                  <td>{o.ordererName}{o.guest === true && <span className="badge bg-secondary ms-1">비회원</span>}</td>
                   <td className="text-end">{fmt(o.paymentAmount)}원</td>
                   <td className="text-center">{PAY_LABELS[o.paymentMethod]}</td>
                   <td className="text-center"><span className="badge bg-info">{STATUS_LABELS[o.status]}</span></td>
@@ -129,7 +130,7 @@ export default function OrderListPage() {
                   <td>{it.optionName || '-'}</td>
                   <td className="text-center">{it.quantity}</td>
                   <td className="text-end">{fmt(it.totalPrice)}원</td>
-                  <td>{it.order?.ordererName}</td>
+                  <td>{it.order?.ordererName}{it.order?.guest === true && <span className="badge bg-secondary ms-1">비회원</span>}</td>
                   <td className="text-center"><span className="badge bg-info">{STATUS_LABELS[it.order?.status]}</span></td>
                   <td className="text-center">{it.order?.createdAt?.slice(0, 10)}</td>
                 </tr>

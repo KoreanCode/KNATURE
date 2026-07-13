@@ -18,6 +18,8 @@ import CsPage from './pages/board/CsPage'
 import FactoryPage from './pages/scm/FactoryPage'
 import PurchaseOrderPage from './pages/scm/PurchaseOrderPage'
 import FactoryStockPage from './pages/scm/FactoryStockPage'
+import DisplayPage from './pages/display/DisplayPage'
+import DepositPage from './pages/benefit/DepositPage'
 
 export default function App() {
   return (
@@ -34,7 +36,9 @@ export default function App() {
         <Route path="/members" element={<MemberListPage />} />
         <Route path="/members/:id" element={<MemberDetailPage />} />
         <Route path="/stocks" element={<StockListPage />} />
+        <Route path="/displays" element={<DisplayPage />} />
         <Route path="/mileages" element={<MileagePage />} />
+        <Route path="/deposits" element={<DepositPage />} />
         <Route path="/coupons" element={<CouponPage />} />
         <Route path="/boards" element={<BoardPage />} />
         <Route path="/cs" element={<CsPage />} />

@@ -44,6 +44,7 @@ export default function Header() {
           <Link to="/products">PRODUCT</Link>
           <Link to="/community">COMMUNITY</Link>
           <Link to="/page/guide">GUIDE</Link>
+          <Link to="/page/brand">BRAND</Link>
         </nav>
 
         <div className="d-flex align-items-center gap-3">

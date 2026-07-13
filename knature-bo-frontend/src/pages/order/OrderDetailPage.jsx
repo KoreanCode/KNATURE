@@ -62,7 +62,8 @@ export default function OrderDetailPage() {
               <th className="table-light" style={{ width: 120 }}>주문일</th><td>{order.createdAt?.replace('T', ' ').slice(0, 16)}</td>
             </tr>
             <tr>
-              <th className="table-light">주문자</th><td>{order.ordererName}</td>
+              <th className="table-light">주문자</th>
+              <td>{order.ordererName}{order.guest === true && <span className="badge bg-secondary ms-1">비회원</span>}</td>
               <th className="table-light">연락처</th><td>{order.ordererPhone || '-'}</td>
             </tr>
             <tr>

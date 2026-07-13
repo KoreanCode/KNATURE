@@ -7,4 +7,6 @@ import java.util.List;
 
 public interface MileageHistoryRepository extends JpaRepository<MileageHistory, Long> {
     List<MileageHistory> findByMemberIdOrderByIdDesc(Long memberId);
+
+    List<MileageHistory> findByPendingTrueAndAvailableAtLessThanEqual(java.time.LocalDate date);
 }

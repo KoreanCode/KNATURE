@@ -34,6 +34,12 @@ export default function OrderResultPage() {
         )}
       </div>
 
+      {state.guest && (
+        <div className="alert alert-info text-start small">
+          비회원 주문은 <Link to="/order/guest" className="fw-bold">비회원 주문 조회</Link>에서 주문번호와 주문 시 입력한 비밀번호로 확인하실 수 있습니다.
+        </div>
+      )}
+
       {isBank && (
         <div className="alert alert-warning text-start small">
           <b>입금 안내</b><br />
@@ -44,7 +50,9 @@ export default function OrderResultPage() {
       )}
 
       <div className="d-flex gap-2 justify-content-center mt-4">
-        <Link to="/myshop/orders" className="btn btn-outline-brand px-4">주문 내역 보기</Link>
+        {state.guest
+          ? <Link to="/order/guest" className="btn btn-outline-brand px-4">비회원 주문 조회</Link>
+          : <Link to="/myshop/orders" className="btn btn-outline-brand px-4">주문 내역 보기</Link>}
         <Link to="/products" className="btn btn-brand px-4">쇼핑 계속하기</Link>
       </div>
     </div>

@@ -42,4 +42,54 @@ public class MileageService {
                 .reason(reason)
                 .build());
     }
+
+    /**
+     * 대기 적립 (2차) — 잔액에 반영하지 않고 availableAt 도래 시 releaseDuePending() 이 전환.
+     * (배송완료 N일 후 사용 가능 정책)
+     */
+    @Transactional
+    public MileageHistory changePending(Member member, long amount, java.time.LocalDate availableAt,
+                                        MileageType type, String reason) {
+        MileageHistory history = MileageHistory.builder()
+                .member(member)
+                .amount(amount)
+                .balanceAfter(member.getMileage() == null ? 0 : member.getMileage())
+                .mileageType(type)
+                .reason(reason)
+                .build();
+        history.setPending(true);
+        history.setAvailableAt(availableAt);
+        return historyRepository.save(history);
+    }
+
+    /** 사용 대기 적립 합계 */
+    public long getPendingSum(Long memberId) {
+        return historyRepository.findByMemberIdOrderByIdDesc(memberId).stream()
+                .filter(h -> Boolean.TRUE.equals(h.getPending()))
+                .mapToLong(MileageHistory::getAmount)
+                .sum();
+    }
+
+    /** availableAt 도래한 대기 적립 → 잔액 반영 (스케줄러 일 배치) */
+    @Transactional
+    public int releaseDuePending() {
+        var due = historyRepository.findByPendingTrueAndAvailableAtLessThanEqual(java.time.LocalDate.now());
+        for (MileageHistory h : due) {
+            Member member = h.getMember();
+            long after = (member.getMileage() == null ? 0 : member.getMileage()) + h.getAmount();
+            member.setMileage(after);
+            h.setPending(false);
+            h.setBalanceAfter(after);
+        }
+        return due.size();
+    }
+
+    /** 특정 주문의 대기 적립 무효화 (취소/반품 시) — reason 에 주문번호 포함 규약 */
+    @Transactional
+    public void voidPendingByOrder(Long memberId, String orderNumber) {
+        historyRepository.findByMemberIdOrderByIdDesc(memberId).stream()
+                .filter(h -> Boolean.TRUE.equals(h.getPending()) && h.getReason() != null
+                        && h.getReason().contains(orderNumber))
+                .forEach(historyRepository::delete);
+    }
 }

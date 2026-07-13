@@ -15,11 +15,31 @@ export default function ProductDetailPage() {
   const [detailTab, setDetailTab] = useState('detail'); // detail | review
   const [reviews, setReviews] = useState([]);
   const [reviewForm, setReviewForm] = useState({ rating: 5, content: '' });
+  const [wished, setWished] = useState(false);
+  const [loggedIn, setLoggedIn] = useState(false);
 
   useEffect(() => {
     api.get(`/products/${id}`).then((res) => setProduct(res.data)).catch(() => navigate('/products'));
     loadReviews();
+    setWished(false);
+    api.get('/auth/me')
+      .then(() => {
+        setLoggedIn(true);
+        api.get(`/wishlist/check/${id}`).then((res) => setWished(!!res.data.wished)).catch(() => {});
+      })
+      .catch(() => setLoggedIn(false));
   }, [id]);
+
+  const toggleWish = () => {
+    if (!loggedIn) {
+      alert('로그인이 필요합니다.');
+      navigate('/member/login?redirect=' + encodeURIComponent(`/products/${id}`));
+      return;
+    }
+    api.post('/wishlist/toggle', { productId: id })
+      .then((res) => setWished(!!res.data.wished))
+      .catch((err) => alert(err.response?.data?.message || '위시리스트 처리에 실패했습니다.'));
+  };
 
   const loadReviews = () => {
     api.get(`/products/${id}/reviews`).then((res) => setReviews(res.data)).catch(() => setReviews([]));
@@ -151,6 +171,10 @@ export default function ProductDetailPage() {
             <button className="btn btn-outline-brand flex-fill py-2" onClick={toCart} disabled={soldOut}>장바구니</button>
             <button className="btn btn-brand flex-fill py-2" onClick={buyNow} disabled={soldOut}>
               {soldOut ? 'SOLD OUT' : '바로구매'}
+            </button>
+            <button type="button" className={`btn py-2 px-3 flex-shrink-0 ${wished ? 'btn-brand' : 'btn-outline-brand'}`}
+              onClick={toggleWish} aria-label="위시리스트" title="위시리스트">
+              {wished ? '♥' : '♡'}
             </button>
           </div>
         </div>

@@ -51,6 +51,14 @@ public class Member extends BaseEntity {
     @Column(nullable = false, columnDefinition = "bigint default 0")
     private Long mileage = 0L;
 
+    /** 예치금 (원) — 변동은 DepositHistory 로 추적 (2차) */
+    @Column(nullable = false, columnDefinition = "bigint default 0")
+    private Long deposit = 0L;
+
+    /** 생년월일 — 생일 쿠폰 자동 발급용 (2차) */
+    @Column
+    private java.time.LocalDate birthDate;
+
     @Column(nullable = false)
     private Boolean active = true;
 

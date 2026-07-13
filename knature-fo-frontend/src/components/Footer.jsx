@@ -25,6 +25,10 @@ export default function Footer() {
             <Link to="/page/guide">이용안내</Link>
             <Link to="/page/agreement">이용약관</Link>
             <Link to="/page/privacy">개인정보처리방침</Link>
+            <Link to="/page/membership">멤버십 안내</Link>
+            <Link to="/page/brand">브랜드 스토리</Link>
+            <Link to="/page/about">회사소개</Link>
+            <Link to="/page/contact">CONTACT</Link>
           </div>
           <div className="d-flex gap-3 fs-5">
             <a href="https://instagram.com" target="_blank" rel="noreferrer" aria-label="인스타그램"><i className="bi bi-instagram"></i></a>

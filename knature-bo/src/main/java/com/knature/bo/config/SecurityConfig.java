@@ -61,7 +61,7 @@ public class SecurityConfig {
                                  "/api/stocks/**", "/api/settings/**", "/api/admins/**", "/api/files/**",
                                  "/api/mileages/**", "/api/coupons/**",
                                  "/api/articles/**", "/api/reviews/**", "/api/inquiries/**",
-                                 "/api/factories/**")
+                                 "/api/factories/**", "/api/displays/**", "/api/deposits/**")
                     .hasRole("SUPER_ADMIN")
                 .requestMatchers("/api/**").authenticated()
                 .anyRequest().permitAll()

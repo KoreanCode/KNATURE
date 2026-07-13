@@ -49,6 +49,7 @@ public class CouponAdminController {
                 .validUntil(body.get("validUntil") != null && !body.get("validUntil").isBlank()
                         ? LocalDate.parse(body.get("validUntil")) : null)
                 .build();
+        coupon.setBirthdayCoupon("true".equals(body.get("birthdayCoupon")));
         return ResponseEntity.ok(couponService.create(coupon));
     }
 

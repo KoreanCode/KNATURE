@@ -50,6 +50,104 @@ const PAGES = {
       </>
     ),
   },
+  membership: {
+    title: '멤버십 안내',
+    body: (
+      <>
+        <h5>회원 등급 안내</h5>
+        <p>KNATURE 멤버십은 최근 구매 실적에 따라 매월 자동으로 산정됩니다. 등급이 높을수록 구매 시 더 많은 적립 혜택을 받으실 수 있습니다.</p>
+        <table className="table table-bordered table-sm text-center align-middle">
+          <thead className="table-light">
+            <tr><th>등급</th><th>승급 조건</th><th>적립 혜택</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>뉴</td><td>신규 가입 회원</td><td>기본 적립율 적용</td></tr>
+            <tr><td>루비</td><td>일정 구매 실적 달성 시</td><td>기본보다 높은 적립율</td></tr>
+            <tr><td>실버</td><td>루비 등급 이상의 구매 실적 달성 시</td><td>루비보다 높은 적립율</td></tr>
+            <tr><td>골드</td><td>실버 등급 이상의 구매 실적 달성 시</td><td>실버보다 높은 적립율</td></tr>
+            <tr><td>다이아몬드</td><td>골드 등급 이상의 구매 실적 달성 시</td><td>골드보다 높은 적립율</td></tr>
+            <tr><td>플래티넘</td><td>최상위 구매 실적 달성 시</td><td>최고 적립율 + 우선 혜택</td></tr>
+          </tbody>
+        </table>
+        <p className="small text-muted">등급별 승급 조건 및 적립율은 내부 정책에 따라 변경될 수 있으며, 변경 시 공지사항을 통해 안내드립니다.</p>
+        <h5>가입 혜택</h5>
+        <p>신규 회원가입 시 <b>적립금 5,000P</b>와 <b>20% 할인 쿠폰</b>을 즉시 지급해 드립니다. 지급된 적립금과 쿠폰은 마이쇼핑에서 확인하실 수 있습니다.</p>
+      </>
+    ),
+  },
+  brand: {
+    title: '브랜드 스토리',
+    body: (
+      <>
+        <h5>자연에서 답을 찾다, KNATURE</h5>
+        <p>KNATURE는 '자연(Nature)에서 얻은 원료로 피부 본연의 건강함을 되찾는다'는 철학에서 출발한 자연주의 스킨케어 브랜드입니다. 화려한 향과 자극적인 성분 대신, 피부가 진짜 필요로 하는 것에 집중합니다.</p>
+        <h5>정직한 성분, 꼭 필요한 것만</h5>
+        <p>우리는 좋은 화장품이란 '더하는 것'이 아니라 '덜어내는 것'이라 믿습니다. 엄선된 자연 유래 성분을 중심으로 불필요한 첨가물을 최소화하여, 민감한 피부도 매일 안심하고 사용할 수 있는 데일리 스킨케어를 만듭니다.</p>
+        <h5>지속 가능한 아름다움</h5>
+        <p>KNATURE는 제품을 만드는 과정에서도 자연을 생각합니다. 재활용 가능한 패키지를 사용하고 동물실험을 하지 않으며, 피부와 환경 모두에게 건강한 아름다움을 제안합니다.</p>
+      </>
+    ),
+  },
+  about: {
+    title: '회사소개',
+    body: (
+      <>
+        <h5>아람티앤씨</h5>
+        <p>아람티앤씨(주)는 자연주의 스킨케어 브랜드 KNATURE를 운영하는 뷰티 전문 기업입니다. '피부에 정직한 화장품'이라는 원칙 아래 기획부터 생산, 유통까지 꼼꼼하게 관리하며 고객에게 신뢰할 수 있는 제품을 전하고 있습니다.</p>
+        <h5>연혁</h5>
+        <ul>
+          <li>아람티앤씨(주) 설립</li>
+          <li>자연주의 스킨케어 브랜드 KNATURE 론칭</li>
+          <li>온라인 공식몰 오픈 및 주요 온라인 채널 입점</li>
+          <li>스킨케어 라인업 확장 및 리뉴얼</li>
+        </ul>
+        <h5>오시는 길 / 연락처</h5>
+        <p>
+          주소: 서울특별시 (자세한 주소는 하단 사업자 정보를 참고해주세요)<br />
+          고객센터: 1544-1089<br />
+          이메일: cs@knature.co.kr
+        </p>
+      </>
+    ),
+  },
+  contact: {
+    title: 'CONTACT',
+    body: (
+      <>
+        <h5>고객센터</h5>
+        <p>
+          전화: <b>1544-1089</b><br />
+          운영시간: 평일 10:00 ~ 17:00 (점심 12:00 ~ 13:00 / 주말·공휴일 휴무)<br />
+          이메일: cs@knature.co.kr
+        </p>
+        <h5>오시는 길</h5>
+        <p>
+          주소: 서울특별시 아람티앤씨(주)<br />
+          <a href="https://map.kakao.com/link/search/서울특별시 아람티앤씨" target="_blank" rel="noreferrer" className="text-brand">카카오맵에서 위치 보기</a>
+        </p>
+        <h5>1:1 문의</h5>
+        <p>로그인 후 마이쇼핑 &gt; 1:1 문의에서 상품·주문 관련 문의를 남겨주시면 순차적으로 답변드립니다.</p>
+      </>
+    ),
+  },
+  gallery: {
+    title: '갤러리',
+    body: (
+      <>
+        <p className="text-center text-muted">브랜드/프로덕트 갤러리를 준비 중입니다. 곧 KNATURE의 다양한 모습을 만나보실 수 있습니다.</p>
+        <div className="row g-3">
+          {[1, 2, 3, 4, 5, 6].map((n) => (
+            <div key={n} className="col-6 col-md-4">
+              <div className="bg-light border rounded d-flex align-items-center justify-content-center text-muted small"
+                style={{ aspectRatio: '1 / 1' }}>
+                준비중
+              </div>
+            </div>
+          ))}
+        </div>
+      </>
+    ),
+  },
 };
 
 export default function StaticPage() {

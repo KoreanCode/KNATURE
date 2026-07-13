@@ -26,7 +26,8 @@ public class AuthController {
         Member member = memberAuthService.signup(
                 body.get("username"), body.get("password"), body.get("name"),
                 body.get("email"), body.get("phone"),
-                body.get("zipcode"), body.get("address"), body.get("addressDetail"));
+                body.get("zipcode"), body.get("address"), body.get("addressDetail"),
+                body.get("birthDate"));
         return ResponseEntity.ok(Map.of(
                 "message", "회원가입이 완료되었습니다.",
                 "username", member.getUsername(),

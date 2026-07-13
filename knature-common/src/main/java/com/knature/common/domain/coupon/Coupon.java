@@ -49,6 +49,10 @@ public class Coupon extends BaseEntity {
     @Column(nullable = false)
     private Boolean active = true;
 
+    /** 생일 쿠폰 — 회원 생일에 스케줄러가 자동 발급 (2차) */
+    @Column(nullable = false, columnDefinition = "bit default 0")
+    private Boolean birthdayCoupon = false;
+
     @Builder
     public Coupon(String code, String name, DiscountType discountType, Long amount,
                   Long maxDiscount, Long minOrderAmount, LocalDate validUntil) {

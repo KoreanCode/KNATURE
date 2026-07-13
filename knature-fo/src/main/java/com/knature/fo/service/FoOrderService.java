@@ -1,6 +1,7 @@
 package com.knature.fo.service;
 
 import com.knature.common.domain.coupon.MemberCoupon;
+import com.knature.common.domain.deposit.DepositHistory.DepositType;
 import com.knature.common.domain.member.Member;
 import com.knature.common.domain.mileage.MileageHistory.MileageType;
 import com.knature.common.domain.order.*;
@@ -9,9 +10,11 @@ import com.knature.common.domain.product.ProductOption;
 import com.knature.common.repository.*;
 import com.knature.common.service.AutoOrderService;
 import com.knature.common.service.CouponService;
+import com.knature.common.service.DepositService;
 import com.knature.common.service.MileageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,28 +39,54 @@ public class FoOrderService {
     private final MemberCouponRepository memberCouponRepository;
     private final MileageService mileageService;
     private final CouponService couponService;
+    private final DepositService depositService;
     private final AutoOrderService autoOrderService;
+    private final PasswordEncoder passwordEncoder;
 
     /** 주문 항목 요청 (productId, optionId nullable, quantity) */
     public record OrderItemRequest(Long productId, Long optionId, int quantity) {}
 
-    /**
-     * 주문 생성 — 가격은 서버에서 재계산(클라이언트 금액 불신), 재고 검증·차감, 주문번호 발급.
-     * 적립금 사용/쿠폰 적용은 서버에서 재검증. 무통장 → 입금전 / 그 외(1차 모의결제) → 배송준비중
-     */
+    /** 비회원 주문자 정보 (2차) — password 는 주문 조회용 */
+    public record GuestInfo(String name, String email, String phone, String password) {}
+
     @Transactional
     public Order createOrder(String username, List<OrderItemRequest> items, PaymentMethod paymentMethod,
                              String receiverName, String receiverPhone, String zipcode,
                              String address, String addressDetail, String deliveryMemo,
                              long useMileage, Long memberCouponId) {
+        return createOrder(username, items, paymentMethod, receiverName, receiverPhone, zipcode,
+                address, addressDetail, deliveryMemo, useMileage, memberCouponId, 0, null);
+    }
+
+    /**
+     * 주문 생성 — 가격은 서버에서 재계산(클라이언트 금액 불신), 재고 검증·차감, 주문번호 발급.
+     * 적립금/예치금/쿠폰은 서버에서 재검증. 무통장 → 입금전 / 그 외(1차 모의결제) → 배송준비중.
+     * username == null 이면 비회원 주문 (guest 필수, 혜택 사용 불가) — 2차
+     */
+    @Transactional
+    public Order createOrder(String username, List<OrderItemRequest> items, PaymentMethod paymentMethod,
+                             String receiverName, String receiverPhone, String zipcode,
+                             String address, String addressDetail, String deliveryMemo,
+                             long useMileage, Long memberCouponId, long useDeposit, GuestInfo guest) {
         if (items == null || items.isEmpty()) {
             throw new IllegalArgumentException("주문할 상품이 없습니다.");
         }
         if (receiverName == null || receiverName.isBlank() || address == null || address.isBlank()) {
             throw new IllegalArgumentException("배송지 정보를 입력해주세요.");
         }
-        Member member = memberRepository.findByUsername(username)
-                .orElseThrow(() -> new IllegalArgumentException("회원 정보를 찾을 수 없습니다."));
+        Member member = null;
+        if (username != null) {
+            member = memberRepository.findByUsername(username)
+                    .orElseThrow(() -> new IllegalArgumentException("회원 정보를 찾을 수 없습니다."));
+        } else {
+            if (guest == null || guest.name() == null || guest.name().isBlank()
+                    || guest.password() == null || guest.password().length() < 4) {
+                throw new IllegalArgumentException("비회원 주문자 정보와 주문 비밀번호(4자 이상)를 입력해주세요.");
+            }
+            if (useMileage > 0 || useDeposit > 0 || memberCouponId != null) {
+                throw new IllegalArgumentException("비회원 주문은 쿠폰/적립금/예치금을 사용할 수 없습니다.");
+            }
+        }
 
         // 1) 상품 검증 + 금액 계산 + 재고 차감
         long totalAmount = 0;
@@ -96,7 +125,7 @@ public class FoOrderService {
         // 2) 배송비 — BO 설정(배송 정책) 연동
         long deliveryFee = calculateDeliveryFee(totalAmount);
 
-        // 3) 쿠폰 적용 (서버 재검증)
+        // 3) 쿠폰 적용 (서버 재검증) — 회원 전용
         long couponDiscount = 0;
         MemberCoupon memberCoupon = null;
         if (memberCouponId != null) {
@@ -106,7 +135,7 @@ public class FoOrderService {
             memberCoupon.use();
         }
 
-        // 4) 적립금 사용 (잔액 검증 + 결제금액 초과 방지)
+        // 4) 적립금 사용 (잔액 검증 + 결제금액 초과 방지) — 회원 전용
         long payable = totalAmount + deliveryFee - couponDiscount;
         if (useMileage < 0) {
             throw new IllegalArgumentException("적립금 사용액이 올바르지 않습니다.");
@@ -118,13 +147,25 @@ public class FoOrderService {
             mileageService.change(member, -useMileage, MileageType.USE, "주문 사용");
         }
 
+        // 4-1) 예치금 사용 (2차) — 회원 전용, 적립금 차감 후 잔여 결제금액까지만
+        long payableAfterMileage = payable - useMileage;
+        if (useDeposit < 0) {
+            throw new IllegalArgumentException("예치금 사용액이 올바르지 않습니다.");
+        }
+        if (useDeposit > payableAfterMileage) {
+            useDeposit = payableAfterMileage;
+        }
+        if (useDeposit > 0) {
+            depositService.change(member, -useDeposit, DepositType.USE, "주문 사용");
+        }
+
         // 5) 주문 생성
         Order order = Order.builder()
                 .orderNumber(generateOrderNumber())
                 .member(member)
-                .ordererName(member.getName())
-                .ordererEmail(member.getEmail())
-                .ordererPhone(member.getPhone())
+                .ordererName(member != null ? member.getName() : guest.name())
+                .ordererEmail(member != null ? member.getEmail() : guest.email())
+                .ordererPhone(member != null ? member.getPhone() : guest.phone())
                 .receiverName(receiverName)
                 .receiverPhone(receiverPhone)
                 .receiverZipcode(zipcode)
@@ -133,12 +174,16 @@ public class FoOrderService {
                 .deliveryMemo(deliveryMemo)
                 .totalAmount(totalAmount)
                 .deliveryFee(deliveryFee)
-                .paymentAmount(payable - useMileage)
+                .paymentAmount(payable - useMileage - useDeposit)
                 .paymentMethod(paymentMethod)
                 .build();
         order.setUsedMileage(useMileage);
+        order.setUsedDeposit(useDeposit);
         order.setCouponDiscount(couponDiscount);
         order.setUsedMemberCouponId(memberCoupon != null ? memberCoupon.getId() : null);
+        if (member == null) {
+            order.setGuestPassword(passwordEncoder.encode(guest.password()));
+        }
         // 무통장은 입금 대기, 그 외는 결제 완료로 간주(1차 모의결제) → 배송준비중
         if (paymentMethod != PaymentMethod.BANK_TRANSFER) {
             order.setStatus(OrderStatus.PREPARING);
@@ -164,6 +209,17 @@ public class FoOrderService {
                     "주문 접수 트리거 (" + saved.getOrderNumber() + ")");
         }
         return saved;
+    }
+
+    /** 비회원 주문 조회 — 주문번호 + 주문 비밀번호 (2차) */
+    public Order getGuestOrder(String orderNumber, String password) {
+        Order order = orderRepository.findByOrderNumber(orderNumber)
+                .orElseThrow(() -> new IllegalArgumentException("주문번호 또는 비밀번호가 올바르지 않습니다."));
+        if (!order.isGuest() || order.getGuestPassword() == null
+                || password == null || !passwordEncoder.matches(password, order.getGuestPassword())) {
+            throw new IllegalArgumentException("주문번호 또는 비밀번호가 올바르지 않습니다.");
+        }
+        return order;
     }
 
     /** 주문번호 규칙: ORD-yyyyMMdd-일련번호(3자리) */

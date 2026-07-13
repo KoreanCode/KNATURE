@@ -1,4 +1,4 @@
-package com.knature.common.domain.mileage;
+package com.knature.common.domain.deposit;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.knature.common.domain.BaseEntity;
@@ -6,14 +6,14 @@ import com.knature.common.domain.member.Member;
 import jakarta.persistence.*;
 import lombok.*;
 
-/** 적립금 변동 이력 (+적립 / -사용·차감) */
+/** 예치금 변동 이력 (+지급·환불 / -사용·차감) — 2차 */
 @Entity
-@Table(name = "mileage_histories")
+@Table(name = "deposit_histories")
 @Getter @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class MileageHistory extends BaseEntity {
+public class DepositHistory extends BaseEntity {
 
-    public enum MileageType { JOIN, PURCHASE, USE, ADMIN, REFUND, REVIEW }
+    public enum DepositType { ADMIN, USE, REFUND }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,7 +24,7 @@ public class MileageHistory extends BaseEntity {
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private Member member;
 
-    /** 변동액 (+적립 / -사용) */
+    /** 변동액 (+지급 / -사용) */
     @Column(nullable = false)
     private Long amount;
 
@@ -34,24 +34,17 @@ public class MileageHistory extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
-    private MileageType mileageType;
+    private DepositType depositType;
 
     @Column(nullable = false, length = 200)
     private String reason;
 
-    /** 사용 대기 적립 — availableAt 도래 시 스케줄러가 잔액 반영 (2차: 배송완료 N일 후 사용 가능) */
-    @Column(nullable = false, columnDefinition = "bit default 0")
-    private Boolean pending = false;
-
-    @Column
-    private java.time.LocalDate availableAt;
-
     @Builder
-    public MileageHistory(Member member, Long amount, Long balanceAfter, MileageType mileageType, String reason) {
+    public DepositHistory(Member member, Long amount, Long balanceAfter, DepositType depositType, String reason) {
         this.member = member;
         this.amount = amount;
         this.balanceAfter = balanceAfter;
-        this.mileageType = mileageType;
+        this.depositType = depositType;
         this.reason = reason;
     }
 }

@@ -1,5 +1,6 @@
 package com.knature.bo.service;
 
+import com.knature.common.domain.deposit.DepositHistory.DepositType;
 import com.knature.common.domain.member.Member;
 import com.knature.common.domain.mileage.MileageHistory.MileageType;
 import com.knature.common.domain.order.Order;
@@ -11,6 +12,7 @@ import com.knature.common.repository.MemberCouponRepository;
 import com.knature.common.repository.OrderItemRepository;
 import com.knature.common.repository.OrderRepository;
 import com.knature.common.repository.OrderStatusHistoryRepository;
+import com.knature.common.service.DepositService;
 import com.knature.common.service.MileageService;
 import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
@@ -41,6 +43,9 @@ public class OrderService {
     private final OrderStatusHistoryRepository statusHistoryRepository;
     private final MemberCouponRepository memberCouponRepository;
     private final MileageService mileageService;
+    private final DepositService depositService;
+    private final com.knature.common.repository.ShopSettingRepository shopSettingRepository;
+    private final com.knature.common.repository.StockLotRepository stockLotRepository;
 
     public Page<Order> getOrders(String keyword, OrderStatus status, LocalDate from, LocalDate to, Pageable pageable) {
         return orderRepository.findAll(buildSpec(keyword, status, from, to), pageable);
@@ -134,7 +139,7 @@ public class OrderService {
         });
     }
 
-    /** 취소 시 사용 적립금 환급 + 사용 쿠폰 복구 */
+    /** 취소 시 사용 적립금·예치금 환급 + 사용 쿠폰 복구 */
     private void refundBenefits(Order order) {
         Member member = order.getMember();
         if (member == null) return;
@@ -143,13 +148,23 @@ public class OrderService {
             mileageService.change(member, usedMileage, MileageType.REFUND,
                     "주문 취소 환급 (" + order.getOrderNumber() + ")");
         }
+        long usedDeposit = order.getUsedDeposit() == null ? 0 : order.getUsedDeposit();
+        if (usedDeposit > 0) {
+            depositService.change(member, usedDeposit, DepositType.REFUND,
+                    "주문 취소 환급 (" + order.getOrderNumber() + ")");
+        }
         if (order.getUsedMemberCouponId() != null) {
             memberCouponRepository.findById(order.getUsedMemberCouponId())
                     .ifPresent(mc -> mc.restore());
         }
+        // 반품 등으로 아직 사용가능 전환 전인 구매 대기 적립이 있으면 무효화
+        mileageService.voidPendingByOrder(member.getId(), order.getOrderNumber());
     }
 
-    /** 구매확정 — 총구매금액 누적 → 등급 자동 재계산 → 등급별 적립율 구매 적립 */
+    /**
+     * 구매확정 — 총구매금액 누적 → 등급 자동 재계산 → 등급별 적립율 구매 적립.
+     * 적립은 설정 mileage.usableAfterDays(기본 20일, 0=즉시) 후 사용 가능 (2차 정책)
+     */
     private void confirmPurchase(Order order) {
         Member member = order.getMember();
         if (member == null) return;
@@ -159,11 +174,23 @@ public class OrderService {
         int rate = member.getGrade().getRewardRate();
         long reward = amount * rate / 100;
         if (reward > 0) {
-            mileageService.change(member, reward, MileageType.PURCHASE,
-                    "구매 적립 " + rate + "% (" + order.getOrderNumber() + ")");
+            int usableAfterDays = settingInt("mileage.usableAfterDays", 20);
+            String reason = "구매 적립 " + rate + "% (" + order.getOrderNumber() + ")";
+            if (usableAfterDays > 0) {
+                mileageService.changePending(member, reward, LocalDate.now().plusDays(usableAfterDays),
+                        MileageType.PURCHASE, reason + " — " + usableAfterDays + "일 후 사용 가능");
+            } else {
+                mileageService.change(member, reward, MileageType.PURCHASE, reason);
+            }
         }
         log.info("구매확정: {} → 총구매 {}원, 등급 {}, 적립 {}P",
                 member.getUsername(), member.getTotalPurchaseAmount(), member.getGrade(), reward);
+    }
+
+    private int settingInt(String key, int defaultValue) {
+        return shopSettingRepository.findBySettingKey(key)
+                .map(s -> { try { return Integer.parseInt(s.getSettingValue().trim()); } catch (Exception e) { return defaultValue; } })
+                .orElse(defaultValue);
     }
 
     @Transactional
@@ -189,6 +216,29 @@ public class OrderService {
         order.setTrackingNumber(trackingNumber);
         recordStatusChange(order, OrderStatus.SHIPPING, currentUsername());
         order.setStatus(OrderStatus.SHIPPING);
+        deductLotsFifo(order);
+    }
+
+    /**
+     * 출고(송장 등록) 시 LOT 재고 FIFO 차감 (2차) — 제조일 오래된 LOT부터.
+     * 본사 판매 재고는 주문 시점에 이미 차감되므로 LOT 관리 수량만 동기화한다.
+     */
+    private void deductLotsFifo(Order order) {
+        for (OrderItem item : order.getItems()) {
+            if (item.getProduct() == null) continue;
+            int remaining = item.getQuantity();
+            var lots = stockLotRepository
+                    .findByProductIdAndQuantityGreaterThanOrderByManufactureDateAscIdAsc(item.getProduct().getId(), 0);
+            for (var lot : lots) {
+                if (remaining <= 0) break;
+                int take = Math.min(lot.getQuantity(), remaining);
+                lot.setQuantity(lot.getQuantity() - take);
+                remaining -= take;
+            }
+            if (remaining > 0) {
+                log.info("LOT FIFO: {} — LOT 미등록분 {}개는 일반 재고에서 출고", item.getProductName(), remaining);
+            }
+        }
     }
 
     /**
@@ -222,6 +272,7 @@ public class OrderService {
             order.setTrackingNumber(tracking);
             recordStatusChange(order, OrderStatus.SHIPPING, username);
             order.setStatus(OrderStatus.SHIPPING);
+            deductLotsFifo(order);
             success++;
         }
         Map<String, Object> result = new LinkedHashMap<>();

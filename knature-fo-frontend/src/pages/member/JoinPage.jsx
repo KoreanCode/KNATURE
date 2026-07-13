@@ -8,7 +8,7 @@ export default function JoinPage() {
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [agree, setAgree] = useState({ terms: false, privacy: false });
-  const [form, setForm] = useState({ username: '', password: '', passwordConfirm: '', name: '', email: '', phone: '', zipcode: '', address: '', addressDetail: '' });
+  const [form, setForm] = useState({ username: '', password: '', passwordConfirm: '', name: '', email: '', phone: '', zipcode: '', address: '', addressDetail: '', birthDate: '' });
   const [error, setError] = useState('');
   const [doneName, setDoneName] = useState('');
 
@@ -25,7 +25,9 @@ export default function JoinPage() {
     setError('');
     if (form.password !== form.passwordConfirm) { setError('비밀번호가 일치하지 않습니다.'); return; }
     try {
-      const res = await api.post('/auth/signup', form);
+      const body = { ...form };
+      if (!body.birthDate) delete body.birthDate; // 미입력 시 생략
+      const res = await api.post('/auth/signup', body);
       setDoneName(res.data.name);
       setStep(3);
     } catch (err) {
@@ -83,7 +85,9 @@ export default function JoinPage() {
             <button type="button" className="btn btn-outline-brand flex-shrink-0"
               onClick={() => openPostcode(({ zipcode, address }) => setForm((p) => ({ ...p, zipcode, address })))}>주소 검색</button>
           </div>
-          <input className="form-control mb-3" placeholder="상세주소" maxLength={100} value={form.addressDetail} onChange={set('addressDetail')} />
+          <input className="form-control mb-2" placeholder="상세주소" maxLength={100} value={form.addressDetail} onChange={set('addressDetail')} />
+          <label className="form-label small text-muted mb-1" htmlFor="birthDate">생년월일 (선택 — 생일 쿠폰 지급)</label>
+          <input type="date" id="birthDate" className="form-control mb-3" value={form.birthDate} onChange={set('birthDate')} />
           {error && <div className="alert alert-danger py-2 small">{error}</div>}
           <button className="btn btn-brand w-100 py-2">가입하기</button>
         </form>

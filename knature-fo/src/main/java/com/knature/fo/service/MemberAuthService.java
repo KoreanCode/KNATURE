@@ -30,6 +30,12 @@ public class MemberAuthService {
     @Transactional
     public Member signup(String username, String password, String name, String email, String phone,
                          String zipcode, String address, String addressDetail) {
+        return signup(username, password, name, email, phone, zipcode, address, addressDetail, null);
+    }
+
+    @Transactional
+    public Member signup(String username, String password, String name, String email, String phone,
+                         String zipcode, String address, String addressDetail, String birthDate) {
         if (username == null || username.isBlank() || password == null || password.isBlank()
                 || name == null || name.isBlank() || email == null || email.isBlank()) {
             throw new IllegalArgumentException("필수 정보(아이디/비밀번호/이름/이메일)를 모두 입력해주세요.");
@@ -53,6 +59,10 @@ public class MemberAuthService {
         member.setZipcode(zipcode);
         member.setAddress(address);
         member.setAddressDetail(addressDetail);
+        if (birthDate != null && !birthDate.isBlank()) {
+            try { member.setBirthDate(java.time.LocalDate.parse(birthDate.trim())); }
+            catch (Exception e) { throw new IllegalArgumentException("생년월일 형식이 올바르지 않습니다. (예: 1990-01-15)"); }
+        }
         Member saved = memberRepository.save(member);
 
         // 가입 혜택: 적립금(설정 mileage.joinBonus, 기본 5,000P) + WELCOME 쿠폰(가입 20% 할인)

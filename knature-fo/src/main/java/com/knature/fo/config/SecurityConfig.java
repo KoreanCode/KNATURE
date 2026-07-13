@@ -54,10 +54,13 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 // 공개: 인증, 카탈로그(상품/카테고리 조회), 상점 정보, 게시판(공지/이벤트/FAQ)·상품후기 조회
                 .requestMatchers("/api/auth/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/categories/**", "/api/products/**", "/api/shop-info", "/api/articles/**").permitAll()
-                // 회원 전용: 주문, 마이페이지, 배송지, 후기 작성, 1:1 문의
+                .requestMatchers(HttpMethod.GET, "/api/categories/**", "/api/products/**", "/api/shop-info",
+                                 "/api/articles/**", "/api/display-sections").permitAll()
+                // 비회원 주문/조회 (2차) — 주문 생성은 회원/비회원 공용, 조회는 주문번호+비밀번호 검증
+                .requestMatchers(HttpMethod.POST, "/api/orders", "/api/orders/guest/lookup").permitAll()
+                // 회원 전용: 주문 내역, 마이페이지, 배송지, 후기 작성, 1:1 문의, 위시리스트
                 .requestMatchers("/api/orders/**", "/api/mypage/**", "/api/addresses/**",
-                                 "/api/reviews/**", "/api/inquiries/**").hasRole("MEMBER")
+                                 "/api/reviews/**", "/api/inquiries/**", "/api/wishlist/**").hasRole("MEMBER")
                 .requestMatchers("/api/**").authenticated()
                 .anyRequest().permitAll()
             )
