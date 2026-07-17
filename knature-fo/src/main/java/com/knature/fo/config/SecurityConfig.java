@@ -60,7 +60,8 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST, "/api/orders", "/api/orders/guest/lookup").permitAll()
                 // 회원 전용: 주문 내역, 마이페이지, 배송지, 후기 작성, 1:1 문의, 위시리스트
                 .requestMatchers("/api/orders/**", "/api/mypage/**", "/api/addresses/**",
-                                 "/api/reviews/**", "/api/inquiries/**", "/api/wishlist/**").hasRole("MEMBER")
+                                 "/api/reviews/**", "/api/inquiries/**", "/api/wishlist/**",
+                                 "/api/restock-alerts/**").hasRole("MEMBER")
                 .requestMatchers("/api/**").authenticated()
                 .anyRequest().permitAll()
             )

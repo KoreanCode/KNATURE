@@ -58,7 +58,10 @@ export default function OrderFormPage() {
   const set = (k) => (e) => setForm((prev) => ({ ...prev, [k]: e.target.value }));
   const setGuestField = (k) => (e) => setGuest((prev) => ({ ...prev, [k]: e.target.value }));
 
-  const totalAmount = items.reduce((sum, it) => sum + it.unitPrice * it.quantity, 0);
+  // 등급 추가 할인 — 서버 공식과 동일: 항목 단가(기본가+옵션추가금)에 할인 적용 후 원 단위 내림 × 수량
+  const gradeRate = me ? (parseInt(shopInfo['gradeDiscount.' + me.grade]) || 0) : 0;
+  const effectiveUnitPrice = (it) => (gradeRate > 0 ? Math.floor(it.unitPrice * (100 - gradeRate) / 100) : it.unitPrice);
+  const totalAmount = items.reduce((sum, it) => sum + effectiveUnitPrice(it) * it.quantity, 0);
   const baseFee = parseInt(shopInfo['delivery.baseFee'] || '0') || 0;
   const freeThreshold = parseInt(shopInfo['delivery.freeThreshold'] || '0') || 0;
   const deliveryFee = freeThreshold > 0 && totalAmount >= freeThreshold ? 0 : baseFee;
@@ -141,10 +144,11 @@ export default function OrderFormPage() {
       {/* 주문 상품 */}
       <div className="border rounded p-3 mb-3">
         <b className="d-block mb-2">주문 상품 ({items.length})</b>
+        {gradeRate > 0 && <div className="small text-brand mb-1">등급 추가 할인 -{gradeRate}% 적용</div>}
         {items.map((it, i) => (
           <div key={i} className="d-flex justify-content-between small py-1 border-top">
             <span>{it.name}{it.optionName ? ` (${it.optionName})` : ''} × {it.quantity}</span>
-            <span className="fw-semibold">{fmt(it.unitPrice * it.quantity)}원</span>
+            <span className="fw-semibold">{fmt(effectiveUnitPrice(it) * it.quantity)}원</span>
           </div>
         ))}
       </div>

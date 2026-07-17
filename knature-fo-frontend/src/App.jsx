@@ -19,6 +19,7 @@ import MyAddressPage from './pages/myshop/MyAddressPage'
 import MyMileagePage from './pages/myshop/MyMileagePage'
 import MyDepositPage from './pages/myshop/MyDepositPage'
 import MyWishlistPage from './pages/myshop/MyWishlistPage'
+import MyRestockPage from './pages/myshop/MyRestockPage'
 import MyCouponPage from './pages/myshop/MyCouponPage'
 import MyInquiryPage from './pages/myshop/MyInquiryPage'
 import CommunityPage from './pages/community/CommunityPage'
@@ -48,6 +49,7 @@ export default function App() {
           <Route path="/myshop/mileage" element={<MyMileagePage />} />
           <Route path="/myshop/deposit" element={<MyDepositPage />} />
           <Route path="/myshop/wishlist" element={<MyWishlistPage />} />
+          <Route path="/myshop/restock" element={<MyRestockPage />} />
           <Route path="/myshop/coupon" element={<MyCouponPage />} />
           <Route path="/myshop/inquiry" element={<MyInquiryPage />} />
           <Route path="/community" element={<CommunityPage />} />

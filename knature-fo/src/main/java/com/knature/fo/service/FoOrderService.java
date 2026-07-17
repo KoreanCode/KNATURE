@@ -88,7 +88,8 @@ public class FoOrderService {
             }
         }
 
-        // 1) 상품 검증 + 금액 계산 + 재고 차감
+        // 1) 상품 검증 + 금액 계산 + 재고 차감 — 회원 등급별 추가 할인 적용 (3차)
+        int gradeDiscountRate = member != null ? gradeDiscountRate(member) : 0;
         long totalAmount = 0;
         record Line(Product product, ProductOption option, int quantity, long unitPrice) {}
         List<Line> lines = new java.util.ArrayList<>();
@@ -113,6 +114,9 @@ public class FoOrderService {
                         .findFirst()
                         .orElseThrow(() -> new IllegalArgumentException("옵션을 찾을 수 없습니다."));
                 unitPrice += option.getAdditionalPrice();
+            }
+            if (gradeDiscountRate > 0) {
+                unitPrice = unitPrice * (100 - gradeDiscountRate) / 100; // 등급별 회원가 (원 단위 내림)
             }
             // 재고 차감 + 품절 자동 처리
             product.setStockQuantity(stock - req.quantity());
@@ -233,6 +237,12 @@ public class FoOrderService {
             }
         }
         throw new IllegalStateException("주문번호 생성에 실패했습니다. 다시 시도해주세요.");
+    }
+
+    /** 등급별 추가 할인율(%) — 설정 gradeDiscount.{GRADE}, 0~90 범위로 방어 (3차) */
+    private int gradeDiscountRate(Member member) {
+        long rate = settingLong("gradeDiscount." + member.getGrade().name(), 0);
+        return (int) Math.max(0, Math.min(90, rate));
     }
 
     private long calculateDeliveryFee(long totalAmount) {

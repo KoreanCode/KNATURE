@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from 'react-router-dom'
 import Layout from './components/Layout'
 import LoginPage from './pages/auth/LoginPage'
 import DashboardPage from './pages/dashboard/DashboardPage'
+import AnalyticsPage from './pages/analytics/AnalyticsPage'
 import ProductListPage from './pages/product/ProductListPage'
 import ProductFormPage from './pages/product/ProductFormPage'
 import CategoryManagePage from './pages/product/CategoryManagePage'
@@ -27,6 +28,7 @@ export default function App() {
       <Route path="/login" element={<LoginPage />} />
       <Route element={<Layout />}>
         <Route path="/dashboard" element={<DashboardPage />} />
+        <Route path="/analytics" element={<AnalyticsPage />} />
         <Route path="/products" element={<ProductListPage />} />
         <Route path="/products/new" element={<ProductFormPage />} />
         <Route path="/products/:id/edit" element={<ProductFormPage />} />

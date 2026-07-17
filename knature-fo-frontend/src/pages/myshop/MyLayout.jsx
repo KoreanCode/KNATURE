@@ -27,6 +27,7 @@ export default function MyLayout({ title, children }) {
             <NavLink to="/myshop/deposit">예치금 내역</NavLink>
             <NavLink to="/myshop/coupon">쿠폰 내역</NavLink>
             <NavLink to="/myshop/wishlist">위시리스트</NavLink>
+            <NavLink to="/myshop/restock">재입고 알림</NavLink>
             <NavLink to="/myshop/inquiry">1:1 문의</NavLink>
             <NavLink to="/cart">장바구니</NavLink>
             <NavLink to="/myshop/address">배송지 관리</NavLink>

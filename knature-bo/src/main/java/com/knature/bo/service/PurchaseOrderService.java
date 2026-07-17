@@ -39,6 +39,7 @@ public class PurchaseOrderService {
     private final StockHistoryRepository stockHistoryRepository;
     private final AdminRepository adminRepository;
     private final AutoOrderService autoOrderService;
+    private final com.knature.common.service.RestockAlertService restockAlertService;
 
     /** 목록 — 공장관리자는 자기 공장 발주만 (factoryScope) */
     public List<PurchaseOrder> getOrders(PoStatus status, Long factoryId, Long factoryScope) {
@@ -160,12 +161,13 @@ public class PurchaseOrderService {
                 .lotNumber(lotNumber).receivedBy(receivedBy)
                 .build());
 
-        // 1) 본사 재고 반영 (양품) + 이력 + 품절 자동 해제
+        // 1) 본사 재고 반영 (양품) + 이력 + 품절 자동 해제 + 재입고 알림 (3차)
         Product product = po.getProduct();
         if (goodQty > 0) {
             int before = product.getStockQuantity() == null ? 0 : product.getStockQuantity();
             product.setStockQuantity(before + goodQty);
             product.applyStockStatusRule();
+            restockAlertService.notifyIfRestocked(product, before);
             stockHistoryRepository.save(StockHistory.builder()
                     .product(product).beforeQuantity(before).afterQuantity(before + goodQty)
                     .reason("입고 (" + po.getPoNumber() + (lotNumber != null ? ", LOT " + lotNumber : "") + ")")

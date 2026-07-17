@@ -24,6 +24,15 @@ const MILEAGE_FIELDS = [
   { key: 'mileage.usableAfterDays', label: '구매 적립 사용 가능 시점 (배송완료 후 N일, 0=즉시)', type: 'number', min: 0, max: 365, defaultValue: '20' },
 ];
 
+const GRADE_DISCOUNT_FIELDS = [
+  { key: 'gradeDiscount.NEW', label: '뉴 추가 할인율 (%)', type: 'number', min: 0, max: 90, defaultValue: '0' },
+  { key: 'gradeDiscount.RUBY', label: '루비 추가 할인율 (%)', type: 'number', min: 0, max: 90, defaultValue: '0' },
+  { key: 'gradeDiscount.SILVER', label: '실버 추가 할인율 (%)', type: 'number', min: 0, max: 90, defaultValue: '0' },
+  { key: 'gradeDiscount.GOLD', label: '골드 추가 할인율 (%)', type: 'number', min: 0, max: 90, defaultValue: '0' },
+  { key: 'gradeDiscount.DIAMOND', label: '다이아몬드 추가 할인율 (%)', type: 'number', min: 0, max: 90, defaultValue: '0' },
+  { key: 'gradeDiscount.PLATINUM', label: '플래티넘 추가 할인율 (%)', type: 'number', min: 0, max: 90, defaultValue: '0' },
+];
+
 export default function SettingsPage() {
   const [tab, setTab] = useState('shop');
   const [settings, setSettings] = useState({});
@@ -87,7 +96,7 @@ export default function SettingsPage() {
       <TopBar title="설정" />
       <div className="content-card">
         <ul className="nav nav-tabs mb-3">
-          {[['shop', '상점 정보'], ['delivery', '배송 정책'], ['mileage', '적립금 정책'], ['admins', '관리자 계정']].map(([k, label]) => (
+          {[['shop', '상점 정보'], ['delivery', '배송 정책'], ['mileage', '적립금 정책'], ['gradeDiscount', '등급별 가격'], ['admins', '관리자 계정']].map(([k, label]) => (
             <li className="nav-item" key={k}>
               <button className={`nav-link ${tab === k ? 'active' : ''}`} onClick={() => setTab(k)}>{label}</button>
             </li>
@@ -97,6 +106,13 @@ export default function SettingsPage() {
         {tab === 'shop' && renderFields(SHOP_FIELDS)}
         {tab === 'delivery' && renderFields(DELIVERY_FIELDS)}
         {tab === 'mileage' && renderFields(MILEAGE_FIELDS)}
+
+        {tab === 'gradeDiscount' && (
+          <>
+            <p className="text-muted small">회원 등급에 따라 상품가에 추가 할인율을 적용합니다. FO 상품 상세·주문 금액에 자동 반영됩니다. (0 = 할인 없음)</p>
+            {renderFields(GRADE_DISCOUNT_FIELDS)}
+          </>
+        )}
 
         {tab === 'admins' && (
           <>

@@ -4,6 +4,7 @@ import com.knature.common.domain.product.Product;
 import com.knature.common.domain.stock.StockHistory;
 import com.knature.common.repository.ProductRepository;
 import com.knature.common.repository.StockHistoryRepository;
+import com.knature.common.service.RestockAlertService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -19,6 +20,7 @@ public class StockService {
 
     private final ProductRepository productRepository;
     private final StockHistoryRepository stockHistoryRepository;
+    private final RestockAlertService restockAlertService;
 
     public Page<Product> getStocks(String keyword, Pageable pageable) {
         if (keyword != null && !keyword.isBlank()) {
@@ -45,6 +47,7 @@ public class StockService {
         int before = product.getStockQuantity() == null ? 0 : product.getStockQuantity();
         product.setStockQuantity(quantity);
         product.applyStockStatusRule(); // 품절 자동 처리/해제 (엔티티 공통 규칙)
+        restockAlertService.notifyIfRestocked(product, before); // 재입고 알림 (3차)
 
         return stockHistoryRepository.save(StockHistory.builder()
                 .product(product)

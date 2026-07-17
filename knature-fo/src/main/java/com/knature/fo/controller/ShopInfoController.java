@@ -28,7 +28,8 @@ public class ShopInfoController {
     public ResponseEntity<?> shopInfo() {
         Map<String, String> result = new LinkedHashMap<>();
         shopSettingRepository.findAll().forEach(s -> {
-            if (PUBLIC_KEYS.contains(s.getSettingKey())) {
+            // 등급별 추가 할인율(gradeDiscount.*)은 회원가 표시용으로 공개 (3차)
+            if (PUBLIC_KEYS.contains(s.getSettingKey()) || s.getSettingKey().startsWith("gradeDiscount.")) {
                 result.put(s.getSettingKey(), s.getSettingValue());
             }
         });

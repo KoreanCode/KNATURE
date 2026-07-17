@@ -5,6 +5,7 @@ import api from '../api/client';
 // roles: 메뉴 접근 가능 역할 (미지정 = SUPER_ADMIN 전용)
 const MENUS = [
   { path: '/dashboard', icon: 'bi-speedometer2', label: '대시보드' },
+  { path: '/analytics', icon: 'bi-graph-up', label: '매출 분석' },
   { path: '/orders', icon: 'bi-cart-check', label: '주문 관리' },
   { path: '/products', icon: 'bi-box-seam', label: '상품 관리' },
   { path: '/displays', icon: 'bi-grid-1x2', label: '진열 관리' },

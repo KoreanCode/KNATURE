@@ -16,22 +16,29 @@ export default function ProductDetailPage() {
   const [reviews, setReviews] = useState([]);
   const [reviewForm, setReviewForm] = useState({ rating: 5, content: '' });
   const [wished, setWished] = useState(false);
-  const [loggedIn, setLoggedIn] = useState(false);
+  const [me, setMe] = useState(null);
+  const [shopInfo, setShopInfo] = useState({});
+  const [restock, setRestock] = useState({ requested: false, notified: false });
 
   useEffect(() => {
     api.get(`/products/${id}`).then((res) => setProduct(res.data)).catch(() => navigate('/products'));
     loadReviews();
     setWished(false);
+    setRestock({ requested: false, notified: false });
+    api.get('/shop-info').then((res) => setShopInfo(res.data)).catch(() => {});
     api.get('/auth/me')
-      .then(() => {
-        setLoggedIn(true);
-        api.get(`/wishlist/check/${id}`).then((res) => setWished(!!res.data.wished)).catch(() => {});
+      .then((res) => {
+        setMe(res.data);
+        api.get(`/wishlist/check/${id}`).then((r) => setWished(!!r.data.wished)).catch(() => {});
+        api.get(`/restock-alerts/check/${id}`)
+          .then((r) => setRestock({ requested: !!r.data.requested, notified: !!r.data.notified }))
+          .catch(() => {});
       })
-      .catch(() => setLoggedIn(false));
+      .catch(() => setMe(null));
   }, [id]);
 
   const toggleWish = () => {
-    if (!loggedIn) {
+    if (!me) {
       alert('로그인이 필요합니다.');
       navigate('/member/login?redirect=' + encodeURIComponent(`/products/${id}`));
       return;
@@ -39,6 +46,20 @@ export default function ProductDetailPage() {
     api.post('/wishlist/toggle', { productId: id })
       .then((res) => setWished(!!res.data.wished))
       .catch((err) => alert(err.response?.data?.message || '위시리스트 처리에 실패했습니다.'));
+  };
+
+  const requestRestock = () => {
+    if (!me) {
+      alert('로그인이 필요합니다.');
+      navigate('/member/login?redirect=' + encodeURIComponent(`/products/${id}`));
+      return;
+    }
+    api.post('/restock-alerts', { productId: id })
+      .then((res) => {
+        alert(res.data.message);
+        setRestock({ requested: true, notified: false });
+      })
+      .catch((err) => alert(err.response?.data?.message || '재입고 알림 신청에 실패했습니다.'));
   };
 
   const loadReviews = () => {
@@ -65,7 +86,11 @@ export default function ProductDetailPage() {
   const options = product.options || [];
   const selectedOption = options.find((o) => String(o.id) === optionId);
   const unitPrice = product.displayPrice + (selectedOption?.additionalPrice || 0);
-  const total = unitPrice * quantity;
+  // 등급 추가 할인 — 서버 공식과 동일: 항목 단가(기본가+옵션추가금)에 할인 적용 후 원 단위 내림 × 수량
+  const gradeRate = me ? (parseInt(shopInfo['gradeDiscount.' + me.grade]) || 0) : 0;
+  const memberUnitPrice = gradeRate > 0 ? Math.floor(unitPrice * (100 - gradeRate) / 100) : unitPrice;
+  const total = memberUnitPrice * quantity;
+  const restockRequested = restock.requested && !restock.notified;
 
   const setQty = (q) => setQuantity(Math.min(Math.max(1, q), Math.max(stock, 1)));
 
@@ -137,6 +162,12 @@ export default function ProductDetailPage() {
             ) : (
               <div className="fs-4 fw-bold">{fmt(product.price)}원</div>
             )}
+            {gradeRate > 0 && (
+              <div className="small mt-1">
+                회원가 <span className="fw-bold text-brand">{fmt(Math.floor(product.displayPrice * (100 - gradeRate) / 100))}원</span>
+                <span className="text-muted ms-1">(등급 추가 할인 -{gradeRate}%)</span>
+              </div>
+            )}
             <div className="small text-muted mt-2">배송비 무료 · 주문 후 2~4일 소요</div>
           </div>
 
@@ -177,6 +208,15 @@ export default function ProductDetailPage() {
               {wished ? '♥' : '♡'}
             </button>
           </div>
+
+          {soldOut && (
+            <button type="button"
+              className={`btn w-100 py-2 mt-2 ${restockRequested ? 'btn-outline-secondary' : 'btn-outline-brand'}`}
+              onClick={requestRestock} disabled={restockRequested}>
+              <i className="bi bi-bell me-1"></i>
+              {restockRequested ? '재입고 알림 신청됨' : '재입고 알림 신청'}
+            </button>
+          )}
         </div>
       </div>
 
