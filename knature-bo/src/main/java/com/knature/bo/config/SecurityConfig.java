@@ -38,6 +38,7 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         // SPA용 CSRF: XSRF-TOKEN 쿠키(JS 읽기 가능) 발급, 로그인/로그아웃은 예외 처리
         CookieCsrfTokenRepository csrfRepo = CookieCsrfTokenRepository.withHttpOnlyFalse();
+        csrfRepo.setCookieName("BO-XSRF-TOKEN"); // FO와 쿠키명 충돌 방지 (같은 localhost 도메인)
         CsrfTokenRequestAttributeHandler csrfHandler = new CsrfTokenRequestAttributeHandler();
 
         http

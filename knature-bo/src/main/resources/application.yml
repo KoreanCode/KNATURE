@@ -4,6 +4,7 @@ server:
     session:
       timeout: 12h   # 무활동 세션 만료 (기본 30분 → 12시간)
       cookie:
+        name: BO_SESSION   # FO와 같은 localhost 도메인 — 기본 JSESSIONID 충돌(상호 덮어쓰기) 방지
         http-only: true
         same-site: lax
         # 운영(HTTPS) 배포 시 secure: true 로 설정할 것

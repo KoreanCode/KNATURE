@@ -3,8 +3,8 @@ import axios from 'axios';
 const api = axios.create({
   baseURL: 'http://localhost:9090/api',
   withCredentials: true,
-  // CSRF: XSRF-TOKEN 쿠키를 읽어 X-XSRF-TOKEN 헤더로 전송 (크로스 오리진 포함)
-  xsrfCookieName: 'XSRF-TOKEN',
+  // CSRF: BO-XSRF-TOKEN 쿠키를 읽어 X-XSRF-TOKEN 헤더로 전송 (FO와 쿠키명 분리)
+  xsrfCookieName: 'BO-XSRF-TOKEN',
   xsrfHeaderName: 'X-XSRF-TOKEN',
   withXSRFToken: true,
 });
